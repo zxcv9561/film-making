@@ -1,0 +1,2568 @@
+{
+  "meta": {
+    "game": "FILM MAKING",
+    "version": "v2 1차 종합본",
+    "date": "2026-09-23",
+    "notes": "비용(cost)은 계약비. 스타 배우와 거장 작가는 스타 덱이며 required_fame(필요 인지도) 이상일 때 대스타 영역에서만 계약."
+  },
+  "directors": [
+    {
+      "id": "D01",
+      "name": "강태준",
+      "signature_work": "《마감은 오늘》",
+      "concept": "워커홀릭",
+      "start_bonus": "없음",
+      "ability": "일꾼 4개로 시작합니다.",
+      "restriction": "라운드 수입(자산 +2)을 받지 않습니다.",
+      "flavor": "촬영이 끝나기도 전에 다음 작품 콘티를 짜는 워커홀릭 감독. 제작비보다 시간이 아깝다고 믿는다.",
+      "quote": "쉬는 건 종방하고 합시다."
+    },
+    {
+      "id": "D02",
+      "name": "윤재하",
+      "signature_work": "《우리들의 여름밤》",
+      "concept": "1인 제작자 (작가 겸 감독)",
+      "start_bonus": "없음",
+      "ability": "작가 없이 방영할 수 있습니다. 이때 감독이 작가 역할을 하며 작품성은 3에서 시작해 이 방식으로 방영할 때마다 +1 (최대 6). 장르는 방영 때 배우 장르 중 하나로 선언합니다.",
+      "restriction": "직접 집필 작품은 원작 태그와 작가 효과가 없습니다.",
+      "flavor": "각본부터 연출까지 혼자 해내는 독립제작 출신 감독. 작품을 거듭할수록 자기만의 문법이 선명해진다.",
+      "quote": "대본? 제가 쓰면 되죠."
+    },
+    {
+      "id": "D03",
+      "name": "서도혁",
+      "signature_work": "《붉은 궤도》",
+      "concept": "블록버스터 감독",
+      "start_bonus": "자산 +3",
+      "ability": "방영할 때 자산을 추가로 투입할 수 있습니다. 투입한 자산 2당 작품성 +1 (작품당 최대 +4).",
+      "restriction": "없음",
+      "flavor": "대형 세트와 특수효과를 사랑하는 블록버스터 감독. 예산이 늘어날수록 오히려 마음이 편해진다.",
+      "quote": "돈 쓴 장면은 화면에 남아요."
+    },
+    {
+      "id": "D04",
+      "name": "임소연",
+      "signature_work": "《반지하 로맨스》",
+      "concept": "저예산의 귀재",
+      "start_bonus": "자산 +2, 인지도 +1",
+      "ability": "작가·배우 계약비 합이 3 이하인 작품을 방영하면 명성 +2, 자산 +1.",
+      "restriction": "없음",
+      "flavor": "적은 제작비로 의외의 흥행작을 만들어온 감독. 이름값보다 아직 발견되지 않은 가능성을 믿는다.",
+      "quote": "비싼 배우가 좋은 배우는 아니죠."
+    },
+    {
+      "id": "D05",
+      "name": "백승찬",
+      "signature_work": "《위험한 가족》",
+      "concept": "막장의 제왕",
+      "start_bonus": "인지도 +1",
+      "ability": "부정 이슈의 효과를 받을 때마다 그 효과 대신 인지도 +2를 받습니다. 찌라시가 돈 라운드에 방영하면 화제성 +2.",
+      "restriction": "없음",
+      "flavor": "출생의 비밀과 반전을 당당히 밀어붙이는 화제성의 화신. 논란조차 시청률로 바꾸는 데 능하다.",
+      "quote": "욕하면서 보는 것도 보는 겁니다."
+    },
+    {
+      "id": "D06",
+      "name": "한유진",
+      "signature_work": "《내일의 취향》",
+      "concept": "트렌드 예언가",
+      "start_bonus": "자산 +2",
+      "ability": "트렌드를 공개할 때 3장 대신 4장을 공개하고, 꼴찌가 고르기 전에 1장을 덱 아래로 보냅니다(거부권). 장르 유행 보너스 +1.",
+      "restriction": "없음",
+      "flavor": "대중이 무엇에 질리고 무엇에 열광할지 기막히게 읽는 감독. 유행이 오기 전에 이미 촬영 중이다.",
+      "quote": "다음 유행은 이미 시작됐어요."
+    },
+    {
+      "id": "D07",
+      "name": "오진욱",
+      "signature_work": "《수사반 17번지》",
+      "concept": "시즌제의 달인",
+      "start_bonus": "자산 +2",
+      "ability": "방영 후 작가와 배우를 모두 전속으로 남길 수 있습니다(전속 1칸 예외). 단, 다음 작품이 같은 장르일 때만 유지됩니다. 같은 장르를 연속 방영하면 시즌2 명성 +1, 시즌3 이후 +2.",
+      "restriction": "장르를 바꾸면 두 카드 모두 계약 종료",
+      "flavor": "한번 성공한 세계와 배우를 오래 끌고 가는 시즌제 전문가. 익숙함을 반복이 아닌 축적으로 만든다.",
+      "quote": "이 이야기는 아직 안 끝났습니다."
+    },
+    {
+      "id": "D08",
+      "name": "문하경",
+      "signature_work": "《검객의 연애법》",
+      "concept": "크로스오버 연출가",
+      "start_bonus": "자산 +2",
+      "ability": "작가와 배우의 장르가 달라도 장르 일치로 판정합니다. 작가와 배우 장르가 다르면 두 장르의 트렌드를 모두 적용합니다.",
+      "restriction": "없음",
+      "flavor": "어울리지 않을 장르와 배우를 엮어 새로운 색을 만드는 연출가. 실패하면 괴작, 성공하면 장르가 된다.",
+      "quote": "안 어울리니까 해보는 거죠."
+    },
+    {
+      "id": "D09",
+      "name": "차민석",
+      "signature_work": "《완벽한 캐스팅》",
+      "concept": "캐스팅 승부사",
+      "start_bonus": "자산 +3",
+      "ability": "배우 캐스팅 때 진열 대신 다른 플레이어의 전속 배우를 계약비 +2에 데려올 수 있습니다. 원래 소속 플레이어는 자산 +2를 받습니다.",
+      "restriction": "게임당 3회까지",
+      "flavor": "작품보다 먼저 배우부터 보는 캐스팅 중심 감독. 탐나는 배우라면 남의 현장까지 찾아간다는 소문이 있다.",
+      "quote": "그 배우, 제가 쓰겠습니다."
+    },
+    {
+      "id": "D10",
+      "name": "나정호",
+      "signature_work": "《시청률 0.1%》",
+      "concept": "시청률 도박사",
+      "start_bonus": "자산 +2",
+      "ability": "방영할 때 주사위 2개를 굴립니다. 합 10 이상 명성 +4, 7~9 명성 +2, 6 이하 명성 −1.",
+      "restriction": "없음",
+      "flavor": "계산보다 감을 믿고 승부수를 던지는 감독. 제작발표회 때마다 이번엔 된다고 외치는 낙천가다.",
+      "quote": "느낌 왔어요. 갑시다!"
+    },
+    {
+      "id": "D11",
+      "name": "정세린",
+      "signature_work": "《겨울의 초상》",
+      "concept": "페르소나 감독",
+      "start_bonus": "자산 +2",
+      "ability": "전속 배우를 재기용할 때마다 그 배우에 뮤즈 마커 +1 (마커당 연기력 +1, 화제성 +1, 최대 3). 전속 재계약비 −1.",
+      "restriction": "배우가 전속에서 풀리면 마커 제거",
+      "flavor": "한 배우의 새로운 얼굴을 발견해 반복해서 기용하는 감독. 함께한 시간이 길수록 연출도 깊어진다.",
+      "quote": "당신이면 더 보여줄 수 있어요."
+    },
+    {
+      "id": "D12",
+      "name": "유건우",
+      "signature_work": "《월화수목금》",
+      "concept": "멀티 프로젝트 감독",
+      "start_bonus": "자산 +1",
+      "ability": "작품 두 편을 동시에 준비할 수 있습니다(작가·배우 준비 칸 2세트). 방영은 여전히 라운드당 1편.",
+      "restriction": "없음",
+      "flavor": "차기작을 준비하며 차차기작 미팅까지 잡는 멀티태스킹의 달인. 사무실에는 늘 대본이 두 무더기다.",
+      "quote": "다음 작품도 같이 보시죠."
+    }
+  ],
+  "actors": [
+    {
+      "id": "A01",
+      "name": "김도윤",
+      "title": "무명 단역",
+      "career": "무명",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [],
+      "cost": 0,
+      "acting": 0,
+      "buzz": 1,
+      "effect": "🎲 방영 시 주사위: 6이면 \"대발견\" 이번 방영 연기력 +4, 인지도 +2, 그리고 성장 카드로 교체",
+      "grow_to": "G01 (6이 나온 경우만)",
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "이름 없는 배역만 전전한 무명 배우. 한 장면에도 온 힘을 쏟으며 언젠가 찾아올 기회를 기다린다.",
+      "quote": "한 장면이면 충분합니다."
+    },
+    {
+      "id": "A02",
+      "name": "주하린",
+      "title": "길거리 캐스팅",
+      "career": "무명",
+      "type": "예능인",
+      "hallyu": false,
+      "genres": [
+        "코미디"
+      ],
+      "cost": 0,
+      "acting": 0,
+      "buzz": 0,
+      "effect": "🎲 방영 시 주사위: 4~5 화제성 +2 / 6 \"밈 스타\" 화제성 +5, 인지도 +2",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "대학가에서 우연히 캐스팅된 예능형 신인. 연기는 처음이지만 카메라 앞에서는 이상하리만큼 자연스럽다.",
+      "quote": "저 진짜 지나가던 건데요?"
+    },
+    {
+      "id": "A03",
+      "name": "박재민",
+      "title": "연극판 출신",
+      "career": "무명",
+      "type": "연기파",
+      "hallyu": false,
+      "genres": [
+        "스릴러"
+      ],
+      "cost": 2,
+      "acting": 1,
+      "buzz": 0,
+      "effect": "🎲 방영 시 주사위: 3~5 연기력 +1 / 6 연기력 +3, 명성 +1",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "작은 극단에서 잔뼈가 굵은 무명 연기파. 카메라는 낯설지만 배역에 들어가는 순간 분위기가 달라진다.",
+      "quote": "무대든 카메라든, 연기는 같죠."
+    },
+    {
+      "id": "A04",
+      "name": "최은호",
+      "title": "엑스트라 출신",
+      "career": "무명",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "사극"
+      ],
+      "cost": 0,
+      "acting": 0,
+      "buzz": 1,
+      "effect": "🎲 방영 시 주사위: 5~6 \"명품 단역\" 연기력 +2",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "사극 촬영장의 병사와 포졸을 수십 번 맡은 무명 배우. 대사 없는 역할에서도 묘하게 눈에 띈다.",
+      "quote": "이번엔 대사가 있습니까?"
+    },
+    {
+      "id": "A05",
+      "name": "모아(윤서아)",
+      "title": "유튜버 배우",
+      "career": "무명",
+      "type": "예능인",
+      "hallyu": false,
+      "genres": [
+        "코미디"
+      ],
+      "cost": 0,
+      "acting": 0,
+      "buzz": 1,
+      "effect": "🎲 방영 시 주사위: 짝수 화제성 +2 / 홀수 화제성 −1. 바이럴팀 판정 성공 기준 +1",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "짧은 상황극 영상으로 알려진 유튜버 출신 배우. 연기 평가는 엇갈려도 화제 하나는 기막히게 만든다.",
+      "quote": "이거 쇼츠각인데?"
+    },
+    {
+      "id": "A06",
+      "name": "이하진",
+      "title": "청춘물 신예",
+      "career": "신인",
+      "type": "아이돌",
+      "hallyu": false,
+      "genres": [
+        "로맨스"
+      ],
+      "cost": 1,
+      "acting": 0,
+      "buzz": 2,
+      "effect": "음악감독 또는 안무팀 보유 시 화제성 +1",
+      "grow_to": "G02",
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "데뷔 직후 청춘 로맨스에 발탁된 아이돌 출신 신예. 노래와 무대 경험 덕분에 음악 장면에 강하다.",
+      "quote": "첫사랑처럼 해볼게요."
+    },
+    {
+      "id": "A07",
+      "name": "세나(강유리)",
+      "title": "걸그룹 센터",
+      "career": "신인",
+      "type": "아이돌",
+      "hallyu": false,
+      "genres": [
+        "로맨스",
+        "코미디"
+      ],
+      "cost": 3,
+      "acting": 0,
+      "buzz": 3,
+      "effect": "웹 배급사로 방영 시 인지도 +1",
+      "grow_to": "G03",
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "인기 걸그룹 센터에서 연기에 도전한 신인. 웹 공개작에 등장하면 팬들의 반응이 빠르게 번진다.",
+      "quote": "팬들이 좋아해 주겠죠?"
+    },
+    {
+      "id": "A08",
+      "name": "조현규",
+      "title": "액션스쿨 출신",
+      "career": "신인",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "범죄"
+      ],
+      "cost": 1,
+      "acting": 1,
+      "buzz": 1,
+      "effect": "범죄 작품 방영 시 자산 +1",
+      "grow_to": "G04",
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "액션스쿨에서 스턴트와 연기를 함께 익힌 신인. 몸을 쓰는 범죄물 현장에서 특히 빛난다.",
+      "quote": "대역 없이 가겠습니다."
+    },
+    {
+      "id": "A09",
+      "name": "남예린",
+      "title": "국악 신동",
+      "career": "신인",
+      "type": "아역",
+      "hallyu": false,
+      "genres": [
+        "사극"
+      ],
+      "cost": 2,
+      "acting": 1,
+      "buzz": 1,
+      "effect": "작가도 사극이면 인지도 +1",
+      "grow_to": "G05",
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "어린 시절부터 국악 무대에 선 아역 출신 신인. 사극의 말투와 몸가짐을 자연스럽게 익혔다.",
+      "quote": "사극은 말투부터 다르잖아요."
+    },
+    {
+      "id": "A10",
+      "name": "서이안",
+      "title": "천재 아역",
+      "career": "신인",
+      "type": "아역",
+      "hallyu": false,
+      "genres": [
+        "판타지"
+      ],
+      "cost": 2,
+      "acting": 0,
+      "buzz": 2,
+      "effect": "방영 시 인지도 +1",
+      "grow_to": "G06",
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "판타지 드라마로 주목받은 천재 아역. 복잡한 주문도 한 번에 이해해 현장의 사랑을 받는다.",
+      "quote": "한 번 더 하면 더 잘할 수 있어요."
+    },
+    {
+      "id": "A11",
+      "name": "배정훈",
+      "title": "개그맨 출신",
+      "career": "신인",
+      "type": "예능인",
+      "hallyu": false,
+      "genres": [
+        "코미디"
+      ],
+      "cost": 1,
+      "acting": 0,
+      "buzz": 2,
+      "effect": "방영 시 자산 +1",
+      "grow_to": "G07",
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "공개 코미디 무대에서 드라마로 넘어온 신인. 애드리브와 친화력으로 촬영장 분위기까지 살린다.",
+      "quote": "웃기지만 말라는 거죠?"
+    },
+    {
+      "id": "A12",
+      "name": "신가람",
+      "title": "독립영화 스타",
+      "career": "신인",
+      "type": "연기파",
+      "hallyu": false,
+      "genres": [
+        "스릴러"
+      ],
+      "cost": 2,
+      "acting": 2,
+      "buzz": 0,
+      "effect": "작품성 8 이상이면 명성 +1",
+      "grow_to": "G08",
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "작은 영화제에서 먼저 이름을 알린 독립영화계 신예. 흥행보다 좋은 장면과 작품을 고집한다.",
+      "quote": "좋은 장면은 오래 남으니까요."
+    },
+    {
+      "id": "A13",
+      "name": "루안(정시우)",
+      "title": "연습생 출신",
+      "career": "신인",
+      "type": "아이돌",
+      "hallyu": true,
+      "genres": [
+        "판타지"
+      ],
+      "cost": 1,
+      "acting": 0,
+      "buzz": 2,
+      "effect": "없음",
+      "grow_to": "G09",
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "긴 연습생 생활 끝에 배우로 방향을 튼 아이돌형 신인. 해외 팬덤이 국내보다 먼저 가능성을 알아봤다.",
+      "quote": "무대가 달라졌을 뿐이에요."
+    },
+    {
+      "id": "A14",
+      "name": "권세진",
+      "title": "정극 신인",
+      "career": "신인",
+      "type": "연기파",
+      "hallyu": false,
+      "genres": [
+        "범죄"
+      ],
+      "cost": 1,
+      "acting": 2,
+      "buzz": 0,
+      "effect": "없음 (성장 카드가 특히 강함)",
+      "grow_to": "G10",
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "화려함보다 기본기를 택한 정극 출신 신인. 아직 이름은 작지만 선배들이 먼저 연기를 기억한다.",
+      "quote": "제 몫은 해내겠습니다."
+    },
+    {
+      "id": "A15",
+      "name": "민채원",
+      "title": "웹드 여신",
+      "career": "신인",
+      "type": "아이돌",
+      "hallyu": false,
+      "genres": [
+        "로맨스"
+      ],
+      "cost": 1,
+      "acting": 0,
+      "buzz": 2,
+      "effect": "쇼츠드라마·툰스테이지로 방영 시 명성 +1",
+      "grow_to": "G11",
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "짧은 웹드라마마다 높은 조회수를 기록하는 아이돌형 신예. 작은 화면에서도 유독 존재감이 선명하다.",
+      "quote": "짧아도 기억에는 남잖아요."
+    },
+    {
+      "id": "A16",
+      "name": "장태오",
+      "title": "태권도 국가대표 출신",
+      "career": "신인",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "판타지",
+        "범죄"
+      ],
+      "cost": 3,
+      "acting": 1,
+      "buzz": 2,
+      "effect": "CG팀 또는 촬영팀 보유 시 연기력 +1",
+      "grow_to": "G12",
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "태권도 선수 생활을 접고 배우가 된 신인. 고난도 액션도 직접 소화하며 판타지와 범죄물에 강하다.",
+      "quote": "이 정도는 몸 풀기죠."
+    },
+    {
+      "id": "A17",
+      "name": "고은재",
+      "title": "성우 출신",
+      "career": "신인",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "판타지"
+      ],
+      "cost": 1,
+      "acting": 1,
+      "buzz": 1,
+      "effect": "작가가 웹툰 원작이면 화제성 +2",
+      "grow_to": "G13",
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "애니메이션과 게임에서 먼저 활동한 성우 출신 신인. 판타지의 긴 대사와 캐릭터 해석에 능하다.",
+      "quote": "목소리부터 인물이 되는 거예요."
+    },
+    {
+      "id": "A18",
+      "name": "허민준",
+      "title": "시트콤 막내",
+      "career": "신인",
+      "type": "예능인",
+      "hallyu": false,
+      "genres": [
+        "코미디"
+      ],
+      "cost": 1,
+      "acting": 1,
+      "buzz": 1,
+      "effect": "케이블 배급사로 방영 시 인지도 +1",
+      "grow_to": "G14",
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "장수 시트콤의 막내 역으로 데뷔한 예능형 신인. 빠른 호흡과 애드리브에 유난히 강하다.",
+      "quote": "한 번만 더 웃겨볼까요?"
+    },
+    {
+      "id": "A19",
+      "name": "윤세아",
+      "title": "로코 퀸",
+      "career": "중견",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "로맨스"
+      ],
+      "cost": 3,
+      "acting": 2,
+      "buzz": 2,
+      "effect": "로맨스 유행 적용 시 명성 +1 추가",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "로맨틱 코미디 흥행작을 연달아 만든 중견 배우. 로맨스가 유행하면 가장 먼저 이름이 거론된다.",
+      "quote": "사랑에 빠지는 건 전문이에요."
+    },
+    {
+      "id": "A20",
+      "name": "제이든(이선우)",
+      "title": "한류 아이돌 배우",
+      "career": "중견",
+      "type": "아이돌",
+      "hallyu": true,
+      "genres": [
+        "로맨스",
+        "판타지"
+      ],
+      "cost": 5,
+      "acting": 1,
+      "buzz": 3,
+      "effect": "해외 배급사로 방영 시 자산 +2",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "아이돌 활동과 연기를 모두 성공시킨 한류 중견 스타. 해외 공개작에서는 이름 자체가 투자 이유가 된다.",
+      "quote": "이번엔 해외 팬들도 만나겠네요."
+    },
+    {
+      "id": "A21",
+      "name": "김준혁",
+      "title": "형사 전문 배우",
+      "career": "중견",
+      "type": "연기파",
+      "hallyu": false,
+      "genres": [
+        "범죄"
+      ],
+      "cost": 4,
+      "acting": 3,
+      "buzz": 1,
+      "effect": "전속으로 재기용하면 작품성 +1",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "형사 역할을 거듭 맡아 취조실이 집처럼 편한 중견 연기파. 익숙한 제작진과 만날수록 연기가 깊어진다.",
+      "quote": "범인은 대본에 있겠죠?"
+    },
+    {
+      "id": "A22",
+      "name": "홍서진",
+      "title": "사극 전문 배우",
+      "career": "중견",
+      "type": "연기파",
+      "hallyu": false,
+      "genres": [
+        "사극"
+      ],
+      "cost": 4,
+      "acting": 3,
+      "buzz": 1,
+      "effect": "미술팀 보유 시 작품성 +1",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "왕부터 선비까지 시대극을 두루 거친 중견 연기파. 제대로 지은 세트에 들어서면 눈빛부터 달라진다.",
+      "quote": "시대부터 이해해야 인물이 보입니다."
+    },
+    {
+      "id": "A23",
+      "name": "양미경",
+      "title": "국민 엄마",
+      "career": "중견",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "모든 장르"
+      ],
+      "cost": 3,
+      "acting": 2,
+      "buzz": 1,
+      "effect": "어떤 작가와도 장르 일치로 판정 (장르 유행에는 미적용)",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "가족극의 중심을 오래 맡아온 중견 배우. 장르와 상대를 가리지 않고 어떤 작품에도 자연스럽게 녹아든다.",
+      "quote": "밥은 먹고 촬영하는 거예요?"
+    },
+    {
+      "id": "A24",
+      "name": "노기태",
+      "title": "예능 대세",
+      "career": "중견",
+      "type": "예능인",
+      "hallyu": false,
+      "genres": [
+        "코미디"
+      ],
+      "cost": 3,
+      "acting": 1,
+      "buzz": 2,
+      "effect": "방영 시 인지도 +1",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "예능에서 얻은 친근함으로 드라마까지 진출한 중견 방송인. 출연 사실만으로도 프로그램 홍보가 된다.",
+      "quote": "카메라 있으면 일단 갑니다!"
+    },
+    {
+      "id": "A25",
+      "name": "류태경",
+      "title": "악역 전문",
+      "career": "중견",
+      "type": "연기파",
+      "hallyu": false,
+      "genres": [
+        "스릴러"
+      ],
+      "cost": 3,
+      "acting": 3,
+      "buzz": 0,
+      "effect": "작가가 거장이면 작품성 +2",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "미소 하나로 분위기를 바꾸는 악역 전문 중견 연기파. 노련한 작가를 만나면 인물이 더욱 살아난다.",
+      "quote": "나쁜 사람에게도 이유는 있어요."
+    },
+    {
+      "id": "A26",
+      "name": "카일(문지혁)",
+      "title": "판타지 히어로",
+      "career": "중견",
+      "type": "아이돌",
+      "hallyu": true,
+      "genres": [
+        "판타지"
+      ],
+      "cost": 4,
+      "acting": 2,
+      "buzz": 2,
+      "effect": "CG팀 보유 시 화제성 +2",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "대형 판타지 시리즈로 이름을 알린 한류 아이돌 배우. 화려한 특수효과 속에서도 화면을 장악한다.",
+      "quote": "용만 나오면 완벽하겠네요."
+    },
+    {
+      "id": "A27",
+      "name": "이건호",
+      "title": "재기 노리는 배우",
+      "career": "중견",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "범죄",
+        "스릴러"
+      ],
+      "cost": 3,
+      "acting": 2,
+      "buzz": 1,
+      "effect": "방영 후 전속 재계약비 0",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "한때 주목받았지만 긴 공백기를 겪은 중견 배우. 다시 자신을 믿어준 제작사에는 끝까지 의리를 지킨다.",
+      "quote": "이번엔 오래 같이 갑시다."
+    },
+    {
+      "id": "A28",
+      "name": "송다현",
+      "title": "뮤지컬 배우",
+      "career": "중견",
+      "type": "연기파",
+      "hallyu": false,
+      "genres": [
+        "로맨스"
+      ],
+      "cost": 5,
+      "acting": 3,
+      "buzz": 2,
+      "effect": "음악감독 보유 시 화제성 +2",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "무대에서 다져진 발성과 감정 표현이 강점인 중견 연기파. 음악이 더해지는 순간 존재감이 폭발한다.",
+      "quote": "감정에도 리듬이 있어요."
+    },
+    {
+      "id": "A29",
+      "name": "황병철",
+      "title": "명품 감초",
+      "career": "중견",
+      "type": "예능인",
+      "hallyu": false,
+      "genres": [
+        "사극"
+      ],
+      "cost": 3,
+      "acting": 1,
+      "buzz": 3,
+      "effect": "지상파·케이블 배급사로 방영 시 인지도 +1",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "주인공 옆에서 작품의 맛을 살리는 중견 감초 배우. 안방극장에서는 얼굴만 나와도 반가움을 산다.",
+      "quote": "주인공만 맛있으면 섭섭하지."
+    },
+    {
+      "id": "A30",
+      "name": "진소희",
+      "title": "퓨전 사극 배우",
+      "career": "중견",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "사극",
+        "코미디"
+      ],
+      "cost": 3,
+      "acting": 2,
+      "buzz": 2,
+      "effect": "적용 중인 장르 유행 2개가 모두 맞으면 명성 +1",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "정통 사극과 코미디를 자유롭게 넘나드는 중견 배우. 시대극에 현대적인 호흡을 섞는 데 능하다.",
+      "quote": "사극이라고 꼭 무거워야 하나요?"
+    },
+    {
+      "id": "A31",
+      "name": "문재원",
+      "title": "메소드 연기자",
+      "career": "중견",
+      "type": "연기파",
+      "hallyu": false,
+      "genres": [
+        "스릴러"
+      ],
+      "cost": 3,
+      "acting": 4,
+      "buzz": 0,
+      "effect": "이 배우 작품은 화제성 보너스를 받을 수 없음",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "배역에 깊게 들어가기로 유명한 중견 연기파. 작품 완성도에는 집착하지만 화제몰이에는 관심이 없다.",
+      "quote": "화제보다 장면을 남기고 싶습니다."
+    },
+    {
+      "id": "A32",
+      "name": "하준서",
+      "title": "청춘 스타",
+      "career": "중견",
+      "type": "아이돌",
+      "hallyu": false,
+      "genres": [
+        "로맨스"
+      ],
+      "cost": 4,
+      "acting": 1,
+      "buzz": 3,
+      "effect": "바이럴팀 판정 자동 성공",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "청춘 로맨스로 급부상한 아이돌 배우. 촬영 사진 하나만 공개돼도 팬들이 알아서 작품을 퍼뜨린다.",
+      "quote": "홍보요? 팬들이 더 빠른데요."
+    },
+    {
+      "id": "A33",
+      "name": "벨라(김예원)",
+      "title": "SNS 인플루언서",
+      "career": "중견",
+      "type": "예능인",
+      "hallyu": false,
+      "genres": [
+        "코미디"
+      ],
+      "cost": 3,
+      "acting": 0,
+      "buzz": 4,
+      "effect": "방영 시 인지도 +1, 대신 작품성 −1",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "수많은 팔로워를 가진 인플루언서 출신 중견 배우. 연기보다 화제성이 앞서지만 검색어를 움직인다.",
+      "quote": "일단 사진부터 한 장 찍을게요."
+    },
+    {
+      "id": "A34",
+      "name": "차서율",
+      "title": "해외 유학파",
+      "career": "중견",
+      "type": "일반",
+      "hallyu": true,
+      "genres": [
+        "스릴러"
+      ],
+      "cost": 3,
+      "acting": 2,
+      "buzz": 1,
+      "effect": "해외 배급사로 방영 시 명성 +1",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "해외 연기학교에서 공부하고 돌아온 중견 배우. 국내에는 낯설지만 해외 관계자들의 평가가 좋다.",
+      "quote": "좋은 연기는 국경이 없으니까요."
+    },
+    {
+      "id": "A35",
+      "name": "박무진",
+      "title": "무술감독 출신",
+      "career": "중견",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "사극",
+        "범죄"
+      ],
+      "cost": 4,
+      "acting": 3,
+      "buzz": 1,
+      "effect": "촬영팀 보유 시 작품성 +1",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "액션 설계 현장에서 배우로 전향한 중견 배우. 카메라 동선을 이해해 촬영팀이 특히 좋아한다.",
+      "quote": "카메라 위치부터 알려주세요."
+    },
+    {
+      "id": "A36",
+      "name": "심연우",
+      "title": "호러 전문",
+      "career": "중견",
+      "type": "연기파",
+      "hallyu": false,
+      "genres": [
+        "판타지",
+        "스릴러"
+      ],
+      "cost": 3,
+      "acting": 2,
+      "buzz": 1,
+      "effect": "다크채널로 방영 시 명성 +2",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "기묘하고 어두운 작품을 즐겨 고르는 중견 연기파. 장르 팬들 사이에서는 출연 자체가 신뢰를 준다.",
+      "quote": "무서울수록 조용해야 합니다."
+    },
+    {
+      "id": "A37",
+      "name": "안혜정",
+      "title": "가족극 단골",
+      "career": "중견",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "코미디"
+      ],
+      "cost": 2,
+      "acting": 1,
+      "buzz": 2,
+      "effect": "누리문화방송·매일종합채널로 방영 시 자산 +2",
+      "grow_to": null,
+      "required_fame": null,
+      "deck": "actor",
+      "flavor": "주말 가족극에서 꾸준히 얼굴을 알려온 중견 배우. 안정적인 연기와 친근함으로 방송가의 신뢰가 높다.",
+      "quote": "우리 집 이야기처럼 해볼게요."
+    },
+    {
+      "id": "A38",
+      "name": "서유라",
+      "title": "톱스타",
+      "career": "스타",
+      "type": "일반",
+      "hallyu": true,
+      "genres": [
+        "로맨스"
+      ],
+      "cost": 6,
+      "acting": 3,
+      "buzz": 3,
+      "effect": "배급사 인지도 조건 무시. 열애설 이슈 때 인지도 −1 추가",
+      "grow_to": null,
+      "required_fame": 5,
+      "deck": "star",
+      "flavor": "10년 넘게 정상급 자리를 지킨 톱스타. 이름만으로 편성이 움직일 만큼 화제성이 크고 한류 팬층도 두텁다.",
+      "quote": "작품으로 이야기하죠."
+    },
+    {
+      "id": "A39",
+      "name": "정우겸",
+      "title": "연기신",
+      "career": "스타",
+      "type": "연기파",
+      "hallyu": false,
+      "genres": [
+        "스릴러"
+      ],
+      "cost": 7,
+      "acting": 5,
+      "buzz": 1,
+      "effect": "작품성 12 이상이면 명성 +2",
+      "grow_to": null,
+      "required_fame": 7,
+      "deck": "star",
+      "flavor": "십수 년간 수많은 명장면을 남긴 스타 연기파. 어려운 작품일수록 더 강한 존재감을 드러낸다.",
+      "quote": "좋은 대본이면 충분합니다."
+    },
+    {
+      "id": "A40",
+      "name": "레오(강현우)",
+      "title": "월드스타",
+      "career": "스타",
+      "type": "아이돌",
+      "hallyu": true,
+      "genres": [
+        "판타지"
+      ],
+      "cost": 7,
+      "acting": 2,
+      "buzz": 5,
+      "effect": "해외 배급사로 방영 시 명성 +2",
+      "grow_to": null,
+      "required_fame": 7,
+      "deck": "star",
+      "flavor": "음악과 드라마를 모두 성공시킨 세계적 아이돌 스타. 해외 공개작이라면 존재 자체가 이벤트가 된다.",
+      "quote": "이번엔 세계가 보겠네요."
+    },
+    {
+      "id": "A41",
+      "name": "조성환",
+      "title": "천만배우",
+      "career": "스타",
+      "type": "연기파",
+      "hallyu": false,
+      "genres": [
+        "범죄"
+      ],
+      "cost": 6,
+      "acting": 4,
+      "buzz": 2,
+      "effect": "지상파·OTT 배급사로 방영 시 자산 +2",
+      "grow_to": null,
+      "required_fame": 5,
+      "deck": "star",
+      "flavor": "대형 범죄물의 연이은 흥행으로 투자자들이 먼저 찾는 스타 연기파. 묵직한 존재감이 무기다.",
+      "quote": "관객은 결국 이야기를 봅니다."
+    },
+    {
+      "id": "A42",
+      "name": "백윤호",
+      "title": "국민배우",
+      "career": "스타",
+      "type": "연기파",
+      "hallyu": false,
+      "genres": [
+        "사극"
+      ],
+      "cost": 7,
+      "acting": 3,
+      "buzz": 2,
+      "effect": "방영할 때마다 명성 +1",
+      "grow_to": null,
+      "required_fame": 5,
+      "deck": "star",
+      "flavor": "긴 세월 안방극장과 사극을 지켜온 국민배우. 이름이 크레딧에 오르는 것만으로 작품의 격이 달라진다.",
+      "quote": "한 작품, 한 작품이 전부 기록입니다."
+    },
+    {
+      "id": "A43",
+      "name": "마동규",
+      "title": "예능 황제",
+      "career": "스타",
+      "type": "예능인",
+      "hallyu": false,
+      "genres": [
+        "코미디"
+      ],
+      "cost": 7,
+      "acting": 2,
+      "buzz": 5,
+      "effect": "방영 시 보유 제작진 1장의 효과를 한 번 더 적용",
+      "grow_to": null,
+      "required_fame": 5,
+      "deck": "star",
+      "flavor": "드라마와 예능을 자유롭게 넘나드는 방송계 스타. 함께 일하는 제작진의 장점까지 끌어내는 현장형 배우다.",
+      "quote": "재밌으면 한 번 더 갑시다!"
+    },
+    {
+      "id": "A44",
+      "name": "이로운",
+      "title": "로맨스 황태자",
+      "career": "스타",
+      "type": "아이돌",
+      "hallyu": false,
+      "genres": [
+        "로맨스"
+      ],
+      "cost": 7,
+      "acting": 2,
+      "buzz": 5,
+      "effect": "방영 시 인지도 +1",
+      "grow_to": null,
+      "required_fame": 5,
+      "deck": "star",
+      "flavor": "수많은 멜로드라마를 성공시킨 아이돌 출신 로맨스 스타. 등장하는 순간 대중의 관심이 집중된다.",
+      "quote": "이번엔 어떻게 사랑할까요?"
+    },
+    {
+      "id": "A45",
+      "name": "한서령",
+      "title": "칸의 여왕",
+      "career": "스타",
+      "type": "연기파",
+      "hallyu": true,
+      "genres": [
+        "범죄"
+      ],
+      "cost": 7,
+      "acting": 4,
+      "buzz": 2,
+      "effect": "국제영화제 출품으로 방영 시 작품성 +2, 명성 +1",
+      "grow_to": null,
+      "required_fame": 7,
+      "deck": "star",
+      "flavor": "국내외 영화제에서 인정받은 스타 연기파. 까다롭게 작품을 고르며 국제무대에서 특히 강한 평가를 받는다.",
+      "quote": "박수보다 작품이 먼저죠."
+    },
+    {
+      "id": "A46",
+      "name": "장희원",
+      "title": "원조 한류스타",
+      "career": "스타",
+      "type": "일반",
+      "hallyu": true,
+      "genres": [
+        "사극",
+        "로맨스"
+      ],
+      "cost": 7,
+      "acting": 3,
+      "buzz": 3,
+      "effect": "해외 배급사로 방영 시 자산 +3",
+      "grow_to": null,
+      "required_fame": 7,
+      "deck": "star",
+      "flavor": "한류 초창기부터 해외 팬덤을 쌓아온 베테랑 스타. 사극과 멜로 모두에서 꾸준한 흥행력을 지녔다.",
+      "quote": "오래 사랑받는 데는 이유가 있죠."
+    }
+  ],
+  "actor_growth": [
+    {
+      "id": "G01",
+      "name": "김도윤",
+      "title": "숨은 보석",
+      "career": "중견",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "모든 장르"
+      ],
+      "cost": 7,
+      "acting": 4,
+      "buzz": 2,
+      "effect": "무명 단역이 대발견하면 교체되는 카드. 어떤 작가와도 장르 일치",
+      "grow_to": "← A01",
+      "required_fame": null,
+      "deck": "growth",
+      "flavor": "단 한 장면으로 시청자의 눈을 사로잡아 뒤늦게 이름을 알렸다. 이제 장르를 가리지 않는 중견 배우로 성장했다.",
+      "quote": "이번엔 한 작품이면 충분합니다."
+    },
+    {
+      "id": "G02",
+      "name": "이하진",
+      "title": "로맨스 주연 배우",
+      "career": "중견",
+      "type": "아이돌",
+      "hallyu": false,
+      "genres": [
+        "로맨스"
+      ],
+      "cost": 3,
+      "acting": 1,
+      "buzz": 3,
+      "effect": "음악감독 또는 안무팀 보유 시 화제성 +2",
+      "grow_to": "← A06",
+      "required_fame": null,
+      "deck": "growth",
+      "flavor": "첫 청춘 로맨스의 성공 뒤 주연 자리를 굳혔다. 무대 경험을 살린 감성적인 장면이 대표 강점이 됐다.",
+      "quote": "첫사랑, 아직 안 끝났어요."
+    },
+    {
+      "id": "G03",
+      "name": "세나(강유리)",
+      "title": "배우 전향 아이돌",
+      "career": "중견",
+      "type": "아이돌",
+      "hallyu": false,
+      "genres": [
+        "로맨스",
+        "코미디"
+      ],
+      "cost": 5,
+      "acting": 1,
+      "buzz": 4,
+      "effect": "웹 배급사로 방영 시 인지도 +2",
+      "grow_to": "← A07",
+      "required_fame": null,
+      "deck": "growth",
+      "flavor": "아이돌이라는 꼬리표를 넘어 배우로 인정받기 시작했다. 웹 공개작마다 높은 화제성을 기록한다.",
+      "quote": "이젠 배우로 기억해 주세요."
+    },
+    {
+      "id": "G04",
+      "name": "조현규",
+      "title": "액션 배우",
+      "career": "중견",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "범죄"
+      ],
+      "cost": 4,
+      "acting": 2,
+      "buzz": 2,
+      "effect": "범죄 작품 방영 시 자산 +2",
+      "grow_to": "← A08",
+      "required_fame": null,
+      "deck": "growth",
+      "flavor": "몸을 아끼지 않는 액션으로 범죄물의 기대주가 됐다. 직접 소화하는 액션이 그의 상징으로 자리 잡았다.",
+      "quote": "이번에도 제가 직접 합니다."
+    },
+    {
+      "id": "G05",
+      "name": "남예린",
+      "title": "사극 기대주",
+      "career": "중견",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "사극"
+      ],
+      "cost": 4,
+      "acting": 3,
+      "buzz": 1,
+      "effect": "작가도 사극이면 인지도 +1 (아역 태그 소실)",
+      "grow_to": "← A09",
+      "required_fame": null,
+      "deck": "growth",
+      "flavor": "아역 이미지를 벗고 시대극의 차세대 주연으로 성장했다. 국악과 사극 경험이 탄탄한 밑바탕이 됐다.",
+      "quote": "이제 제 이야기를 해볼래요."
+    },
+    {
+      "id": "G06",
+      "name": "서이안",
+      "title": "국민 동생",
+      "career": "중견",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "판타지"
+      ],
+      "cost": 5,
+      "acting": 2,
+      "buzz": 2,
+      "effect": "방영 시 인지도 +1 (아역 태그 소실, 연기력 추가 +1 반영)",
+      "grow_to": "← A10",
+      "required_fame": null,
+      "deck": "growth",
+      "flavor": "천재 아역에서 자연스럽게 성인 배우로 성장했다. 오랜 팬층과 안정된 연기력을 모두 갖춘 기대주다.",
+      "quote": "저, 이제 어린애 아니에요."
+    },
+    {
+      "id": "G07",
+      "name": "배정훈",
+      "title": "예능 출신 배우",
+      "career": "중견",
+      "type": "예능인",
+      "hallyu": false,
+      "genres": [
+        "코미디"
+      ],
+      "cost": 4,
+      "acting": 1,
+      "buzz": 3,
+      "effect": "방영 시 자산 +2",
+      "grow_to": "← A11",
+      "required_fame": null,
+      "deck": "growth",
+      "flavor": "웃기는 사람이라는 이미지를 넘어 코미디 연기의 주역이 됐다. 현장 분위기까지 책임지는 중견 배우다.",
+      "quote": "이번엔 대본대로 웃겨드릴게요."
+    },
+    {
+      "id": "G08",
+      "name": "신가람",
+      "title": "충무로 기대주",
+      "career": "중견",
+      "type": "연기파",
+      "hallyu": false,
+      "genres": [
+        "스릴러"
+      ],
+      "cost": 5,
+      "acting": 3,
+      "buzz": 1,
+      "effect": "작품성 8 이상이면 명성 +1",
+      "grow_to": "← A12",
+      "required_fame": null,
+      "deck": "growth",
+      "flavor": "독립영화계의 발견에서 평단이 주목하는 차세대 연기파로 성장했다. 작품을 고르는 안목도 유명해졌다.",
+      "quote": "좋은 작품은 결국 알아보더군요."
+    },
+    {
+      "id": "G09",
+      "name": "루안(정시우)",
+      "title": "한류 신성",
+      "career": "중견",
+      "type": "아이돌",
+      "hallyu": true,
+      "genres": [
+        "판타지"
+      ],
+      "cost": 4,
+      "acting": 1,
+      "buzz": 3,
+      "effect": "해외 배급사로 방영 시 자산 +1",
+      "grow_to": "← A13",
+      "required_fame": null,
+      "deck": "growth",
+      "flavor": "해외 팬덤을 발판으로 판타지 대작의 주연까지 올라섰다. 국내보다 해외에서 먼저 알아보는 한류 신성이다.",
+      "quote": "이제 무대가 정말 넓어졌네요."
+    },
+    {
+      "id": "G10",
+      "name": "권세진",
+      "title": "정통파 배우",
+      "career": "중견",
+      "type": "연기파",
+      "hallyu": false,
+      "genres": [
+        "범죄"
+      ],
+      "cost": 5,
+      "acting": 4,
+      "buzz": 1,
+      "effect": "없음 (연기력 추가 +1 반영)",
+      "grow_to": "← A14",
+      "required_fame": null,
+      "deck": "growth",
+      "flavor": "기본기에 충실했던 신인이 묵직한 정극 배우로 성장했다. 화려하지 않아도 연기만큼은 누구도 의심하지 않는다.",
+      "quote": "결국 남는 건 연기더군요."
+    },
+    {
+      "id": "G11",
+      "name": "민채원",
+      "title": "웹드 스타",
+      "career": "중견",
+      "type": "아이돌",
+      "hallyu": false,
+      "genres": [
+        "로맨스"
+      ],
+      "cost": 3,
+      "acting": 1,
+      "buzz": 3,
+      "effect": "쇼츠드라마·툰스테이지로 방영 시 명성 +1",
+      "grow_to": "← A15",
+      "required_fame": null,
+      "deck": "growth",
+      "flavor": "웹드라마의 얼굴에서 플랫폼을 대표하는 스타로 성장했다. 짧은 작품에서도 강렬한 인상을 남긴다.",
+      "quote": "짧아도 주연은 주연이니까요."
+    },
+    {
+      "id": "G12",
+      "name": "장태오",
+      "title": "액션 히어로",
+      "career": "중견",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "판타지",
+        "범죄"
+      ],
+      "cost": 5,
+      "acting": 2,
+      "buzz": 3,
+      "effect": "CG팀 또는 촬영팀 보유 시 연기력 +1",
+      "grow_to": "← A16",
+      "required_fame": null,
+      "deck": "growth",
+      "flavor": "선수 출신의 강점을 완전히 자기 것으로 만들었다. 대형 액션과 판타지 작품의 단골 주연으로 성장했다.",
+      "quote": "이젠 몸 풀기도 촬영입니다."
+    },
+    {
+      "id": "G13",
+      "name": "고은재",
+      "title": "목소리 연기 장인",
+      "career": "중견",
+      "type": "일반",
+      "hallyu": false,
+      "genres": [
+        "판타지"
+      ],
+      "cost": 3,
+      "acting": 2,
+      "buzz": 2,
+      "effect": "작가가 웹툰 원작이면 화제성 +2",
+      "grow_to": "← A17",
+      "required_fame": null,
+      "deck": "growth",
+      "flavor": "성우와 배우 경력을 함께 살려 독특한 영역을 구축했다. 특히 웹툰 원작 캐릭터 해석으로 높은 평가를 받는다.",
+      "quote": "목소리도 연기의 일부니까요."
+    },
+    {
+      "id": "G14",
+      "name": "허민준",
+      "title": "시트콤 주역",
+      "career": "중견",
+      "type": "예능인",
+      "hallyu": false,
+      "genres": [
+        "코미디"
+      ],
+      "cost": 3,
+      "acting": 2,
+      "buzz": 2,
+      "effect": "케이블 배급사로 방영 시 인지도 +1",
+      "grow_to": "← A18",
+      "required_fame": null,
+      "deck": "growth",
+      "flavor": "막내 역할에서 시작해 이제는 시트콤 전체를 이끄는 배우가 됐다. 빠른 호흡과 애드리브는 여전히 전매특허다.",
+      "quote": "이번엔 제가 받아칠게요."
+    }
+  ],
+  "writers": [
+    {
+      "id": "W01",
+      "name": "한가온",
+      "signature_work": "《봄비가 머문 자리》",
+      "title": "로맨스 웹소설 신예",
+      "career": "신인",
+      "genres": [
+        "로맨스"
+      ],
+      "origin": "웹툰",
+      "hallyu": false,
+      "cost": 1,
+      "quality": 2,
+      "effect": "없음",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "로맨스 웹소설로 데뷔한 신인. 짧은 회차마다 감정을 또렷이 끊어 독자 반응을 빠르게 흡수한다.",
+      "quote": "첫 대본이라 더 설레네요."
+    },
+    {
+      "id": "W02",
+      "name": "최라윤",
+      "signature_work": "《우리가 헤어진 계절》",
+      "title": "공모전 당선 신인",
+      "career": "신인",
+      "genres": [
+        "로맨스"
+      ],
+      "origin": "소설",
+      "hallyu": false,
+      "cost": 2,
+      "quality": 2,
+      "effect": "투자 조건 달성 시 자산 +1",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "로맨스 소설 공모전 당선으로 데뷔한 신인. 투자자의 눈에도 들어올 만큼 선명한 기획력을 보여준다.",
+      "quote": "퇴고만 한 번 더 할게요."
+    },
+    {
+      "id": "W03",
+      "name": "서지완",
+      "signature_work": "《회색 골목의 증언》",
+      "title": "보조작가 출신",
+      "career": "신인",
+      "genres": [
+        "범죄"
+      ],
+      "origin": "오리지널",
+      "hallyu": false,
+      "cost": 2,
+      "quality": 2,
+      "effect": "방영 후 전속 재계약비 0",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "범죄극 보조작가 생활 끝에 독립한 신인. 함께 고생한 제작진과의 의리를 무엇보다 중요하게 여긴다.",
+      "quote": "다음 작품도 같이 쓰고 싶어요."
+    },
+    {
+      "id": "W04",
+      "name": "김해준",
+      "signature_work": "《기록되지 않은 밤》",
+      "title": "기자 출신 신인",
+      "career": "신인",
+      "genres": [
+        "범죄"
+      ],
+      "origin": "오리지널",
+      "hallyu": false,
+      "cost": 2,
+      "quality": 2,
+      "effect": "범죄 방영 시 인지도 +1",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "사회부 기자 경험을 살려 범죄극에 뛰어든 신인. 취재 노트를 바탕으로 현장감 있는 사건을 그린다.",
+      "quote": "사건은 디테일에서 들켜요."
+    },
+    {
+      "id": "W05",
+      "name": "문예담",
+      "signature_work": "《달 아래 붉은 서고》",
+      "title": "사학과 출신",
+      "career": "신인",
+      "genres": [
+        "사극"
+      ],
+      "origin": "소설",
+      "hallyu": false,
+      "cost": 2,
+      "quality": 2,
+      "effect": "미술팀 보유 시 작품성 +1",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "사학을 전공하고 역사소설로 데뷔한 신인. 의상과 공간 고증을 꼼꼼히 확인하며 성장 가능성을 보인다.",
+      "quote": "세트 도면부터 볼 수 있을까요?"
+    },
+    {
+      "id": "W06",
+      "name": "배온유",
+      "signature_work": "《검은 매화록》",
+      "title": "웹툰 각색 신인",
+      "career": "신인",
+      "genres": [
+        "사극"
+      ],
+      "origin": "웹툰",
+      "hallyu": false,
+      "cost": 1,
+      "quality": 2,
+      "effect": "없음",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "사극 웹툰을 드라마로 옮기며 데뷔한 신인 각색가. 원작의 장면 호흡을 영상 언어로 바꾸는 데 재능이 있다.",
+      "quote": "이 장면, 컷보다 길게 가죠."
+    },
+    {
+      "id": "W07",
+      "name": "필명 라온(조아린)",
+      "signature_work": "《별을 삼킨 아이》",
+      "title": "판타지 웹툰 작가",
+      "career": "신인",
+      "genres": [
+        "판타지"
+      ],
+      "origin": "웹툰",
+      "hallyu": false,
+      "cost": 2,
+      "quality": 2,
+      "effect": "툰스테이지로 방영 시 자산 +2",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "판타지 웹툰 연재로 이름을 알린 신인 작가. 독자 반응에 민감하며 영상화 뒤에도 원작 팬을 챙긴다.",
+      "quote": "댓글 반응이 벌써 궁금해요."
+    },
+    {
+      "id": "W08",
+      "name": "도유찬",
+      "signature_work": "《마지막 세이브포인트》",
+      "title": "게임 시나리오 출신",
+      "career": "신인",
+      "genres": [
+        "판타지"
+      ],
+      "origin": "오리지널",
+      "hallyu": false,
+      "cost": 2,
+      "quality": 2,
+      "effect": "CG팀 보유 시 화제성 +1",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "게임 시나리오 작업에서 드라마로 넘어온 판타지 신인. 시각효과를 염두에 둔 장면 설계가 빠르다.",
+      "quote": "이 장면은 화면으로 봐야 해요."
+    },
+    {
+      "id": "W09",
+      "name": "천소미",
+      "signature_work": "《웃음은 퇴근 후에》",
+      "title": "개그 작가 출신",
+      "career": "신인",
+      "genres": [
+        "코미디"
+      ],
+      "origin": "오리지널",
+      "hallyu": false,
+      "cost": 2,
+      "quality": 2,
+      "effect": "예능인 주연이면 화제성 +1",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "예능 개그 작가 출신의 코미디 신인. 배우의 순발력을 살리는 대사와 애드리브 여백을 즐겨 쓴다.",
+      "quote": "여긴 배우한테 맡겨보죠!"
+    },
+    {
+      "id": "W10",
+      "name": "남규빈",
+      "signature_work": "《옆집에는 비밀이 산다》",
+      "title": "시트콤 작가",
+      "career": "신인",
+      "genres": [
+        "코미디"
+      ],
+      "origin": "웹툰",
+      "hallyu": false,
+      "cost": 2,
+      "quality": 2,
+      "effect": "케이블 배급사로 방영 시 자산 +1",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "웹툰식 짧은 호흡을 익힌 시트콤 신인 작가. 매회 가볍게 터지는 소동을 빠르게 엮어낸다.",
+      "quote": "마감 전에 한 번 더 웃겨볼게요."
+    },
+    {
+      "id": "W11",
+      "name": "유서린",
+      "signature_work": "《눈을 감은 목격자》",
+      "title": "추리소설 신예",
+      "career": "신인",
+      "genres": [
+        "스릴러"
+      ],
+      "origin": "소설",
+      "hallyu": false,
+      "cost": 1,
+      "quality": 2,
+      "effect": "없음",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "추리소설로 데뷔한 스릴러 신인. 단서를 촘촘히 심는 데 강하고 첫 영상화에 긴장과 기대가 크다.",
+      "quote": "범인은 아직 말하면 안 되죠?"
+    },
+    {
+      "id": "W12",
+      "name": "강이현",
+      "signature_work": "《문 너머의 사람》",
+      "title": "단편영화 각본가",
+      "career": "신인",
+      "genres": [
+        "스릴러"
+      ],
+      "origin": "오리지널",
+      "hallyu": false,
+      "cost": 2,
+      "quality": 2,
+      "effect": "작품성 8 이상이면 인지도 +1",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "단편영화 각본으로 주목받은 스릴러 신인. 짧은 러닝타임에 밀도를 높이는 법을 익혀 장편을 노린다.",
+      "quote": "짧아도 빈 장면은 싫어요."
+    },
+    {
+      "id": "W13",
+      "name": "이채령",
+      "signature_work": "《연애의 오답노트》",
+      "title": "로코 흥행 작가",
+      "career": "중견",
+      "genres": [
+        "로맨스"
+      ],
+      "origin": "웹툰",
+      "hallyu": false,
+      "cost": 4,
+      "quality": 4,
+      "effect": "아이돌 주연이면 화제성 +1",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "웹툰 원작 로맨틱 코미디를 연속 흥행시킨 중견 작가. 아이돌 배우의 리듬을 대사에 녹이는 데 능하다.",
+      "quote": "설레면서 웃겨야 로코죠."
+    },
+    {
+      "id": "W14",
+      "name": "권태윤",
+      "signature_work": "《침묵의 알리바이》",
+      "title": "장르물 베테랑",
+      "career": "중견",
+      "genres": [
+        "범죄"
+      ],
+      "origin": "오리지널",
+      "hallyu": false,
+      "cost": 4,
+      "quality": 4,
+      "effect": "연기파 주연이면 작품성 +1",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "오리지널 범죄극으로 입지를 굳힌 중견 작가. 연기파 배우의 힘을 믿고 긴 대사도 과감히 맡긴다.",
+      "quote": "좋은 배우면 침묵도 대사예요."
+    },
+    {
+      "id": "W15",
+      "name": "정다원",
+      "signature_work": "《왕의 빈자리》",
+      "title": "정통 사극 작가",
+      "career": "중견",
+      "genres": [
+        "사극"
+      ],
+      "origin": "소설",
+      "hallyu": false,
+      "cost": 4,
+      "quality": 4,
+      "effect": "지상파 배급사로 방영 시 명성 +1",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "역사소설을 바탕으로 묵직한 사극을 써온 중견 작가. 방송 규모가 클수록 정통 서사의 맛을 살린다.",
+      "quote": "사극은 호흡부터 길어야죠."
+    },
+    {
+      "id": "W16",
+      "name": "윤도겸",
+      "signature_work": "《유리숲의 마법사》",
+      "title": "판타지 세계관 설계자",
+      "career": "중견",
+      "genres": [
+        "판타지"
+      ],
+      "origin": "웹툰",
+      "hallyu": true,
+      "cost": 5,
+      "quality": 4,
+      "effect": "해외 배급사로 방영 시 자산 +2",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "웹툰에서 시작한 거대한 판타지 세계관으로 이름난 중견 작가. 해외 독자까지 고려해 설정을 치밀하게 짠다.",
+      "quote": "세계관 표부터 확인하시죠."
+    },
+    {
+      "id": "W17",
+      "name": "박소담",
+      "signature_work": "《오늘도 우리 집은 맑음》",
+      "title": "가족 코미디 작가",
+      "career": "중견",
+      "genres": [
+        "코미디"
+      ],
+      "origin": "오리지널",
+      "hallyu": false,
+      "cost": 5,
+      "quality": 4,
+      "effect": "방영 시 자산 +1",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "생활밀착형 가족 코미디를 꾸준히 써온 중견 작가. 평범한 식탁 대화에서도 웃음과 온기를 뽑아낸다.",
+      "quote": "가족끼린 대본대로 안 되죠."
+    },
+    {
+      "id": "W18",
+      "name": "편서하",
+      "signature_work": "《열세 번째 용의자》",
+      "title": "반전의 귀재",
+      "career": "중견",
+      "genres": [
+        "스릴러"
+      ],
+      "origin": "오리지널",
+      "hallyu": false,
+      "cost": 5,
+      "quality": 4,
+      "effect": "🎲 방영 시 주사위: 5~6 작품성 +2",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "매회 마지막 장면에서 판을 뒤집는 중견 스릴러 작가. 결말은 촬영 직전까지도 좀처럼 공개하지 않는다.",
+      "quote": "복선은 이미 앞에 깔았어요."
+    },
+    {
+      "id": "W19",
+      "name": "차유림",
+      "signature_work": "《달빛 아래 용의 심장》",
+      "title": "판타지 로맨스 작가",
+      "career": "중견",
+      "genres": [
+        "로맨스",
+        "판타지"
+      ],
+      "origin": "웹툰",
+      "hallyu": false,
+      "cost": 4,
+      "quality": 4,
+      "effect": "없음 (두 장르)",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "로맨스와 판타지를 섞은 웹툰으로 흥행한 중견 작가. 감정선과 세계관 규칙을 한 줄기로 엮는다.",
+      "quote": "마법보다 사랑이 더 어렵죠."
+    },
+    {
+      "id": "W20",
+      "name": "신도하",
+      "signature_work": "《검은 항구의 밤》",
+      "title": "범죄 스릴러 작가",
+      "career": "중견",
+      "genres": [
+        "범죄",
+        "스릴러"
+      ],
+      "origin": "오리지널",
+      "hallyu": false,
+      "cost": 4,
+      "quality": 4,
+      "effect": "없음 (두 장르)",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "범죄와 스릴러를 한 호흡으로 밀어붙이는 중견 오리지널 작가. 사건보다 인물의 선택을 집요하게 파고든다.",
+      "quote": "범인은 끝보다 과정이 중요해요."
+    },
+    {
+      "id": "W21",
+      "name": "임하연",
+      "signature_work": "《연화궁의 겨울》",
+      "title": "궁중 멜로 작가",
+      "career": "중견",
+      "genres": [
+        "사극",
+        "로맨스"
+      ],
+      "origin": "소설",
+      "hallyu": false,
+      "cost": 4,
+      "quality": 4,
+      "effect": "없음 (두 장르)",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "역사소설을 바탕으로 궁중 멜로를 써온 중견 작가. 권력 다툼 속에서도 인물의 감정을 놓치지 않는다.",
+      "quote": "궁 안에서도 사랑은 들키죠."
+    },
+    {
+      "id": "W22",
+      "name": "오세빈",
+      "signature_work": "《연애는 계획대로 안 돼》",
+      "title": "로맨틱 코미디 작가",
+      "career": "중견",
+      "genres": [
+        "코미디",
+        "로맨스"
+      ],
+      "origin": "웹툰",
+      "hallyu": false,
+      "cost": 4,
+      "quality": 4,
+      "effect": "없음 (두 장르)",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "웹툰 원작의 빠른 개그와 로맨스를 능숙하게 섞는 중견 작가. 티격태격하는 대사 호흡이 특기다.",
+      "quote": "싸우다 보면 사랑도 하겠죠."
+    },
+    {
+      "id": "W23",
+      "name": "노재인",
+      "signature_work": "《청룡의 서약》",
+      "title": "퓨전 판타지 사극 작가",
+      "career": "중견",
+      "genres": [
+        "판타지",
+        "사극"
+      ],
+      "origin": "소설",
+      "hallyu": false,
+      "cost": 4,
+      "quality": 4,
+      "effect": "없음 (두 장르)",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "설화풍 소설에 판타지와 사극을 결합하는 중견 작가. 오래된 전승을 새로운 세계관으로 다시 짓는다.",
+      "quote": "전설엔 빈칸이 많아서 좋아요."
+    },
+    {
+      "id": "W24",
+      "name": "류은호",
+      "signature_work": "《웃지 않는 사람들》",
+      "title": "블랙코미디 작가",
+      "career": "중견",
+      "genres": [
+        "스릴러",
+        "코미디"
+      ],
+      "origin": "오리지널",
+      "hallyu": false,
+      "cost": 4,
+      "quality": 4,
+      "effect": "없음 (두 장르)",
+      "required_fame": null,
+      "deck": "writer",
+      "flavor": "불편한 현실을 스릴러와 코미디 사이에 세우는 중견 작가. 웃은 직후 서늘해지는 장면을 즐긴다.",
+      "quote": "웃겼으면 이제 불안해질 차례죠."
+    },
+    {
+      "id": "W25",
+      "name": "서명주",
+      "signature_work": "《사랑은 먼 계절을 건너》",
+      "title": "멜로의 거장",
+      "career": "거장",
+      "genres": [
+        "로맨스"
+      ],
+      "origin": "소설",
+      "hallyu": true,
+      "cost": 7,
+      "quality": 6,
+      "effect": "로맨스 유행 적용 시 명성 +1",
+      "required_fame": 9,
+      "deck": "star",
+      "flavor": "긴 호흡의 멜로소설로 해외까지 이름을 알린 거장. 유행 속에서도 감정의 여운과 문장을 고집한다.",
+      "quote": "사랑은 서두르면 얕아집니다."
+    },
+    {
+      "id": "W26",
+      "name": "구현석",
+      "signature_work": "《비 오는 도시의 사냥꾼》",
+      "title": "누아르의 거장",
+      "career": "거장",
+      "genres": [
+        "범죄"
+      ],
+      "origin": "오리지널",
+      "hallyu": false,
+      "cost": 7,
+      "quality": 6,
+      "effect": "작품성 12 이상이면 명성 +2",
+      "required_fame": 7,
+      "deck": "star",
+      "flavor": "묵직한 오리지널 누아르를 써온 거장. 인물의 욕망을 끝까지 밀어붙여 높은 완성도를 끌어낸다.",
+      "quote": "결말은 인물이 정하는 겁니다."
+    },
+    {
+      "id": "W27",
+      "name": "심유정",
+      "signature_work": "《천년의 강》",
+      "title": "대하사극의 거장",
+      "career": "거장",
+      "genres": [
+        "사극"
+      ],
+      "origin": "소설",
+      "hallyu": true,
+      "cost": 7,
+      "quality": 6,
+      "effect": "미술팀 보유 시 작품성 +1",
+      "required_fame": 7,
+      "deck": "star",
+      "flavor": "대하 역사소설로 국내외 독자를 사로잡은 거장. 궁궐의 문양 하나까지 확인하는 고증 집착으로 유명하다.",
+      "quote": "역사는 배경이 아니라 인물입니다."
+    },
+    {
+      "id": "W28",
+      "name": "필명 묵새(전하민)",
+      "signature_work": "《끝없는 탑의 아이들》",
+      "title": "웹툰 신화",
+      "career": "거장",
+      "genres": [
+        "판타지"
+      ],
+      "origin": "웹툰",
+      "hallyu": false,
+      "cost": 7,
+      "quality": 6,
+      "effect": "웹툰 원작 화제성 보너스 2배 (+2)",
+      "required_fame": 5,
+      "deck": "star",
+      "flavor": "장기 연재 판타지 웹툰으로 신화를 쓴 거장. 원작의 명장면이 영상에서도 살아나는지를 가장 중시한다.",
+      "quote": "독자는 그 장면을 기다립니다."
+    },
+    {
+      "id": "W29",
+      "name": "고창민",
+      "signature_work": "《세 식구와 두 비밀》",
+      "title": "시트콤의 대부",
+      "career": "거장",
+      "genres": [
+        "코미디"
+      ],
+      "origin": "오리지널",
+      "hallyu": false,
+      "cost": 7,
+      "quality": 6,
+      "effect": "예능인 주연이면 인지도 +1",
+      "required_fame": 5,
+      "deck": "star",
+      "flavor": "오리지널 시트콤을 오래 써온 코미디 거장. 예능인의 순간적인 재치를 대본 안에 자연스럽게 끌어들인다.",
+      "quote": "웃음은 타이밍이 전부예요."
+    },
+    {
+      "id": "W30",
+      "name": "안세령",
+      "signature_work": "《겨울잠을 자는 증인》",
+      "title": "스릴러 장인",
+      "career": "거장",
+      "genres": [
+        "스릴러"
+      ],
+      "origin": "소설",
+      "hallyu": true,
+      "cost": 7,
+      "quality": 6,
+      "effect": "국제영화제 출품으로 방영 시 명성 +1",
+      "required_fame": 9,
+      "deck": "star",
+      "flavor": "문학성과 긴장을 겸비한 스릴러 소설로 해외에서도 인정받은 거장. 결말보다 남는 질문을 중시한다.",
+      "quote": "답보다 오래 남는 질문이 있죠."
+    }
+  ],
+  "distribution_base": [
+    {
+      "category": "지상파",
+      "condition": "인지도 6 이상",
+      "fame": "작품성 − 2",
+      "awareness": "0",
+      "money": "+2"
+    },
+    {
+      "category": "케이블",
+      "condition": "없음",
+      "fame": "작품성 ÷ 2 (올림)",
+      "awareness": "+2",
+      "money": "+3"
+    },
+    {
+      "category": "OTT",
+      "condition": "인지도 3 이상",
+      "fame": "작품성 ÷ 2 (내림)",
+      "awareness": "0",
+      "money": "4 + 화제성"
+    },
+    {
+      "category": "웹",
+      "condition": "없음",
+      "fame": "+1",
+      "awareness": "화제성 + 2",
+      "money": "+1"
+    },
+    {
+      "category": "해외",
+      "condition": "한류 태그 포함",
+      "fame": "작품성 ÷ 2 (내림)",
+      "awareness": "+1",
+      "money": "3 + 화제성"
+    }
+  ],
+  "distributors": [
+    {
+      "id": "B01",
+      "category": "지상파",
+      "name": "한빛공영방송",
+      "concept": "정통 공영",
+      "modifier": "사극·범죄 작품 명성 +1, 자산은 +1로 감소"
+    },
+    {
+      "id": "B02",
+      "category": "지상파",
+      "name": "스카이방송",
+      "concept": "트렌디 민영",
+      "modifier": "적용 중인 트렌드와 맞는 작품이면 트렌드 보너스 +1, 조건 인지도 7"
+    },
+    {
+      "id": "B03",
+      "category": "지상파",
+      "name": "누리문화방송",
+      "concept": "주말 가족극",
+      "modifier": "자산은 +1로 감소, 방영한 작가 재계약비 0"
+    },
+    {
+      "id": "B04",
+      "category": "케이블",
+      "name": "매일종합채널",
+      "concept": "중장년 종편",
+      "modifier": "연기파·예능인 주연이면 인지도 +1 추가, 아이돌 주연이면 인지도 +1만"
+    },
+    {
+      "id": "B05",
+      "category": "케이블",
+      "name": "톡엔케이블",
+      "concept": "트렌디 케이블",
+      "modifier": "화제성 5 이상이면 명성 +1"
+    },
+    {
+      "id": "B06",
+      "category": "케이블",
+      "name": "다크채널",
+      "concept": "장르물 전문",
+      "modifier": "범죄·스릴러·판타지만 방영 가능, 명성 +1"
+    },
+    {
+      "id": "B07",
+      "category": "OTT",
+      "name": "플릭스월드",
+      "concept": "글로벌 공룡",
+      "modifier": "조건 인지도 5, 한류 태그 포함 시 자산 +3"
+    },
+    {
+      "id": "B08",
+      "category": "OTT",
+      "name": "스트림코리아",
+      "concept": "국내 OTT",
+      "modifier": "조건 인지도 2, 자산 2 + 화제성, 인지도 +1"
+    },
+    {
+      "id": "B09",
+      "category": "OTT",
+      "name": "오리진플러스",
+      "concept": "오리지널 명품관",
+      "modifier": "명성 올림 처리, 자산 2 + 화제성, 작품성 10 이상이면 명성 +1"
+    },
+    {
+      "id": "B10",
+      "category": "웹",
+      "name": "쇼츠드라마",
+      "concept": "숏폼",
+      "modifier": "명성 0, 인지도 화제성 + 3, 바이럴팀 주사위 결과 −1"
+    },
+    {
+      "id": "B11",
+      "category": "웹",
+      "name": "툰스테이지",
+      "concept": "웹툰 연계",
+      "modifier": "웹툰 원작 작가면 명성 +2"
+    },
+    {
+      "id": "B12",
+      "category": "해외",
+      "name": "아시아링크",
+      "concept": "아시아 한류 배급",
+      "modifier": "로맨스·판타지 작품 자산 +2"
+    },
+    {
+      "id": "B13",
+      "category": "해외",
+      "name": "국제영화제 출품",
+      "concept": "작품성 승부",
+      "modifier": "한류 불필요, 조건 작품성 10 이상, 명성 작품성 − 3, 인지도 +2, 자산 0"
+    }
+  ],
+  "investors": [
+    {
+      "id": "I01",
+      "name": "엔젤 투자 A",
+      "contract_condition": "없음",
+      "payout": 4,
+      "next_drama_condition": "없음",
+      "success_bonus": "없음",
+      "failure_penalty": "명성 −3"
+    },
+    {
+      "id": "I02",
+      "name": "엔젤 투자 B",
+      "contract_condition": "없음",
+      "payout": 4,
+      "next_drama_condition": "없음",
+      "success_bonus": "없음",
+      "failure_penalty": "명성 −3"
+    },
+    {
+      "id": "I03",
+      "name": "엔터 투자",
+      "contract_condition": "없음",
+      "payout": 7,
+      "next_drama_condition": "주연이 아이돌",
+      "success_bonus": "인지도 +1",
+      "failure_penalty": "명성 −3"
+    },
+    {
+      "id": "I04",
+      "name": "웹툰 플랫폼",
+      "contract_condition": "없음",
+      "payout": 6,
+      "next_drama_condition": "작가가 웹툰 원작",
+      "success_bonus": "인지도 +2",
+      "failure_penalty": "명성 −3"
+    },
+    {
+      "id": "I05",
+      "name": "방송사 선투자",
+      "contract_condition": "인지도 4 이상",
+      "payout": 8,
+      "next_drama_condition": "지상파 배급사로 방영",
+      "success_bonus": "없음",
+      "failure_penalty": "명성 −3"
+    },
+    {
+      "id": "I06",
+      "name": "OTT 오리지널 펀드",
+      "contract_condition": "인지도 2 이상",
+      "payout": 7,
+      "next_drama_condition": "OTT 배급사로 방영",
+      "success_bonus": "없음",
+      "failure_penalty": "명성 −3"
+    },
+    {
+      "id": "I07",
+      "name": "글로벌 펀드",
+      "contract_condition": "없음",
+      "payout": 7,
+      "next_drama_condition": "한류 태그 포함",
+      "success_bonus": "없음",
+      "failure_penalty": "명성 −3"
+    },
+    {
+      "id": "I08",
+      "name": "멜로·코미디 펀드",
+      "contract_condition": "없음",
+      "payout": 6,
+      "next_drama_condition": "로맨스 또는 코미디",
+      "success_bonus": "명성 +1",
+      "failure_penalty": "명성 −3"
+    },
+    {
+      "id": "I09",
+      "name": "장르물 펀드",
+      "contract_condition": "없음",
+      "payout": 6,
+      "next_drama_condition": "범죄 또는 스릴러",
+      "success_bonus": "명성 +1",
+      "failure_penalty": "명성 −3"
+    },
+    {
+      "id": "I10",
+      "name": "시대극·판타지 펀드",
+      "contract_condition": "없음",
+      "payout": 6,
+      "next_drama_condition": "사극 또는 판타지",
+      "success_bonus": "명성 +1",
+      "failure_penalty": "명성 −3"
+    },
+    {
+      "id": "I11",
+      "name": "속전속결 캐피털",
+      "contract_condition": "없음",
+      "payout": 8,
+      "next_drama_condition": "다음 라운드가 끝나기 전에 방영",
+      "success_bonus": "없음",
+      "failure_penalty": "명성 −3"
+    },
+    {
+      "id": "I12",
+      "name": "명품 제작 펀드",
+      "contract_condition": "없음",
+      "payout": 9,
+      "next_drama_condition": "작품성 9 이상",
+      "success_bonus": "없음",
+      "failure_penalty": "명성 −3"
+    }
+  ],
+  "crews": [
+    {
+      "id": "C01",
+      "kind": "상시",
+      "name": "촬영팀",
+      "price": 5,
+      "effect": "모든 작품 작품성 +1"
+    },
+    {
+      "id": "C02",
+      "kind": "상시",
+      "name": "미술팀",
+      "price": 4,
+      "effect": "사극·판타지 작품성 +2"
+    },
+    {
+      "id": "C03",
+      "kind": "상시",
+      "name": "CG팀",
+      "price": 4,
+      "effect": "판타지·스릴러 작품성 +2"
+    },
+    {
+      "id": "C04",
+      "kind": "상시",
+      "name": "음악감독",
+      "price": 4,
+      "effect": "로맨스·코미디 화제성 +2"
+    },
+    {
+      "id": "C05",
+      "kind": "상시",
+      "name": "안무팀",
+      "price": 3,
+      "effect": "아이돌 주연 화제성 +2"
+    },
+    {
+      "id": "C06",
+      "kind": "상시",
+      "name": "로케이션팀",
+      "price": 4,
+      "effect": "OTT·해외 배급사로 방영 시 자산 +2"
+    },
+    {
+      "id": "C07",
+      "kind": "연계",
+      "name": "바이럴팀",
+      "price": 5,
+      "effect": "방영 시 주사위: 결과가 작품 화제성 이하면 인지도 +2. 6이 나오면 화제성과 무관하게 인지도 +3"
+    },
+    {
+      "id": "C08",
+      "kind": "연계",
+      "name": "홍보팀",
+      "price": 4,
+      "effect": "방영할 때마다 인지도 +1. 인지도 트랙 구간 도달 시 자산 +2"
+    },
+    {
+      "id": "C09",
+      "kind": "연계",
+      "name": "캐스팅 디렉터",
+      "price": 3,
+      "effect": "배우 캐스팅 시 덱에서 2장 더 보고 선택, 고르지 않은 1장으로 진열 교체 가능"
+    },
+    {
+      "id": "C10",
+      "kind": "연계",
+      "name": "기획PD",
+      "price": 4,
+      "effect": "작가 계약 시 자산 +1, 진열에 같은 장르 배우가 있으면 그 배우 계약비 −1"
+    },
+    {
+      "id": "C11",
+      "kind": "연계",
+      "name": "매니지먼트팀",
+      "price": 3,
+      "effect": "재계약비 −1, 이적료 +1"
+    },
+    {
+      "id": "C12",
+      "kind": "연계",
+      "name": "재무팀",
+      "price": 4,
+      "effect": "투자 계약 시 자산 +2, 투자 실패 페널티 −3을 −1로 감소"
+    },
+    {
+      "id": "C13",
+      "kind": "추가 액션",
+      "name": "라인PD",
+      "price": 7,
+      "effect": "라운드당 1회, 일꾼 없이 자산 +2"
+    },
+    {
+      "id": "C14",
+      "kind": "추가 액션",
+      "name": "시즌2 기획팀",
+      "price": 8,
+      "effect": "방영 직후 일꾼 없이 작가 계약 1회 (계약비는 내고 칸 비용 없음)"
+    },
+    {
+      "id": "C15",
+      "kind": "추가 액션",
+      "name": "제작 코디네이터",
+      "price": 5,
+      "effect": "라운드당 1회, 이미 일꾼을 놓은 구역에 한 번 더 놓기 가능 (칸 비용 +1)"
+    },
+    {
+      "id": "C16",
+      "kind": "변환",
+      "name": "소품팀",
+      "price": 3,
+      "effect": "작가 계약비 −1"
+    },
+    {
+      "id": "C17",
+      "kind": "변환",
+      "name": "편집팀",
+      "price": 6,
+      "effect": "게임 종료 시 명성 +2, 작품성 9 이상 방영 1편당 +1"
+    },
+    {
+      "id": "C18",
+      "kind": "변환",
+      "name": "기념품 사업부",
+      "price": 4,
+      "effect": "라운드당 1회, 도달한 인지도 구간(3·6·10) 수만큼 자산 획득"
+    }
+  ],
+  "trends": [
+    {
+      "id": "T01",
+      "trend": "로맨스 유행",
+      "trend_effect": "로맨스 방영 시 명성 +2",
+      "issue": "열애설",
+      "issue_negative": true,
+      "issue_kind": "찌라시",
+      "issue_effect": "아이돌·스타 배우를 준비 칸이나 전속에 둔 플레이어 인지도 −1"
+    },
+    {
+      "id": "T02",
+      "trend": "로맨스 유행",
+      "trend_effect": "로맨스 방영 시 명성 +2",
+      "issue": "광고 호황",
+      "issue_negative": false,
+      "issue_kind": "호재",
+      "issue_effect": "모든 플레이어 자산 +1"
+    },
+    {
+      "id": "T03",
+      "trend": "범죄 유행",
+      "trend_effect": "범죄 방영 시 명성 +2",
+      "issue": "촬영장 사고",
+      "issue_negative": true,
+      "issue_kind": "업계",
+      "issue_effect": "준비 칸에 배우가 있는 플레이어 자산 −1"
+    },
+    {
+      "id": "T04",
+      "trend": "범죄 유행",
+      "trend_effect": "범죄 방영 시 명성 +2",
+      "issue": "편성 개편",
+      "issue_negative": false,
+      "issue_kind": "업계",
+      "issue_effect": "편성표 +1 (명성 없음)"
+    },
+    {
+      "id": "T05",
+      "trend": "사극 유행",
+      "trend_effect": "사극 방영 시 명성 +2",
+      "issue": "신인 발굴 오디션",
+      "issue_negative": false,
+      "issue_kind": "호재",
+      "issue_effect": "이번 라운드 무명·신인 배우 계약비 0"
+    },
+    {
+      "id": "T06",
+      "trend": "사극 유행",
+      "trend_effect": "사극 방영 시 명성 +2",
+      "issue": "표절 논란",
+      "issue_negative": true,
+      "issue_kind": "찌라시",
+      "issue_effect": "웹툰·소설 원작 작가를 준비 칸이나 전속에 둔 플레이어 인지도 −1"
+    },
+    {
+      "id": "T07",
+      "trend": "판타지 유행",
+      "trend_effect": "판타지 방영 시 명성 +2",
+      "issue": "한류 열풍",
+      "issue_negative": false,
+      "issue_kind": "호재",
+      "issue_effect": "K-콘텐츠 지수 +1 (명성 없음)"
+    },
+    {
+      "id": "T08",
+      "trend": "판타지 유행",
+      "trend_effect": "판타지 방영 시 명성 +2",
+      "issue": "제작비 인상",
+      "issue_negative": true,
+      "issue_kind": "업계",
+      "issue_effect": "모든 플레이어 자산 −1"
+    },
+    {
+      "id": "T09",
+      "trend": "코미디 유행",
+      "trend_effect": "코미디 방영 시 명성 +2",
+      "issue": "예능 태도 논란",
+      "issue_negative": true,
+      "issue_kind": "찌라시",
+      "issue_effect": "예능인 배우를 준비 칸이나 전속에 둔 플레이어 인지도 −1"
+    },
+    {
+      "id": "T10",
+      "trend": "코미디 유행",
+      "trend_effect": "코미디 방영 시 명성 +2",
+      "issue": "오디션 대란",
+      "issue_negative": false,
+      "issue_kind": "업계",
+      "issue_effect": "배우 진열 4장 전부 교체"
+    },
+    {
+      "id": "T11",
+      "trend": "스릴러 유행",
+      "trend_effect": "스릴러 방영 시 명성 +2",
+      "issue": "작가 파업",
+      "issue_negative": true,
+      "issue_kind": "업계",
+      "issue_effect": "이번 라운드 작가 계약 칸 비용 +1"
+    },
+    {
+      "id": "T12",
+      "trend": "스릴러 유행",
+      "trend_effect": "스릴러 방영 시 명성 +2",
+      "issue": "시청률 이변",
+      "issue_negative": false,
+      "issue_kind": "호재",
+      "issue_effect": "인지도 최하위 플레이어 인지도 +2"
+    },
+    {
+      "id": "T13",
+      "trend": "아이돌 붐",
+      "trend_effect": "아이돌 주연 방영 시 명성 +1, 인지도 +1",
+      "issue": "팬덤 총공",
+      "issue_negative": false,
+      "issue_kind": "호재",
+      "issue_effect": "아이돌 배우를 준비 칸이나 전속에 둔 플레이어 인지도 +1"
+    },
+    {
+      "id": "T14",
+      "trend": "연기파 붐",
+      "trend_effect": "연기파 주연 방영 시 명성 +1, 인지도 +1",
+      "issue": "출연료 논란",
+      "issue_negative": true,
+      "issue_kind": "찌라시",
+      "issue_effect": "이번 라운드 스타 배우 계약비 +1"
+    },
+    {
+      "id": "T15",
+      "trend": "신인 붐",
+      "trend_effect": "신인·무명 주연 방영 시 명성 +1, 인지도 +1",
+      "issue": "제작진 이적 시장",
+      "issue_negative": false,
+      "issue_kind": "업계",
+      "issue_effect": "제작진 진열 3장 전부 교체"
+    },
+    {
+      "id": "T16",
+      "trend": "한류 붐",
+      "trend_effect": "한류 태그 포함 방영 시 명성 +1, 인지도 +1",
+      "issue": "해외 판권 문의",
+      "issue_negative": false,
+      "issue_kind": "호재",
+      "issue_effect": "한류 배우를 준비 칸이나 전속에 둔 플레이어 자산 +2"
+    },
+    {
+      "id": "T17",
+      "trend": "웹툰 원작 붐",
+      "trend_effect": "웹툰 원작 작가 방영 시 명성 +1, 인지도 +1",
+      "issue": "투자 한파",
+      "issue_negative": true,
+      "issue_kind": "업계",
+      "issue_effect": "투자사 진열 전부 교체, 이번 라운드 투자금 −1"
+    },
+    {
+      "id": "T18",
+      "trend": "예능인 붐",
+      "trend_effect": "예능인 주연 방영 시 명성 +1, 인지도 +1",
+      "issue": "드라마 과잉 편성",
+      "issue_negative": false,
+      "issue_kind": "호재",
+      "issue_effect": "이번 라운드 케이블 배급사 칸 +1"
+    },
+    {
+      "id": "T19",
+      "trend": "OTT 호황",
+      "trend_effect": "OTT 방영 시 자산 +3",
+      "issue": "스트리밍 경쟁",
+      "issue_negative": false,
+      "issue_kind": "업계",
+      "issue_effect": "이번 라운드 투자사 진열 1장 추가 (4장)"
+    },
+    {
+      "id": "T20",
+      "trend": "지상파 부진",
+      "trend_effect": "지상파 방영 시 명성 −1, 자산 +3",
+      "issue": "스캔들 폭로",
+      "issue_negative": true,
+      "issue_kind": "찌라시",
+      "issue_effect": "명성 1위 플레이어 인지도 −1"
+    },
+    {
+      "id": "T21",
+      "trend": "케이블 르네상스",
+      "trend_effect": "케이블 방영 시 명성 +1",
+      "issue": "광고 단가 상승",
+      "issue_negative": false,
+      "issue_kind": "호재",
+      "issue_effect": "이번 라운드 지상파·케이블 방영 시 자산 +1"
+    },
+    {
+      "id": "T22",
+      "trend": "웹드 전성시대",
+      "trend_effect": "웹 방영 시 인지도 +2",
+      "issue": "숏폼 챌린지",
+      "issue_negative": false,
+      "issue_kind": "호재",
+      "issue_effect": "이번 라운드 홍보 비용 −1"
+    },
+    {
+      "id": "T23",
+      "trend": "수출 호황",
+      "trend_effect": "해외 방영 시 자산 +2",
+      "issue": "해외 바이어 방한",
+      "issue_negative": false,
+      "issue_kind": "업계",
+      "issue_effect": "이번 라운드 해외 배급사 칸 +1"
+    },
+    {
+      "id": "T24",
+      "trend": "시청자 눈높이 상승",
+      "trend_effect": "작품성 9 이상 방영 명성 +1, 9 미만 명성 −1",
+      "issue": "악플 테러",
+      "issue_negative": true,
+      "issue_kind": "찌라시",
+      "issue_effect": "인지도 1위 플레이어 인지도 −1"
+    }
+  ],
+  "objectives": [
+    {
+      "id": "O01",
+      "name": "장르 다작",
+      "criterion": "방영한 서로 다른 장르 수",
+      "reward": "1위 명성 +5, 2위 명성 +2"
+    },
+    {
+      "id": "O02",
+      "name": "장르 장인",
+      "criterion": "한 장르로 방영한 작품 수",
+      "reward": "1위 명성 +5, 2위 명성 +2"
+    },
+    {
+      "id": "O03",
+      "name": "화제의 제작사",
+      "criterion": "인지도",
+      "reward": "1위 명성 +5, 2위 명성 +2"
+    },
+    {
+      "id": "O04",
+      "name": "명작 제조기",
+      "criterion": "작품성 9 이상 방영 수",
+      "reward": "1위 명성 +5, 2위 명성 +2"
+    },
+    {
+      "id": "O05",
+      "name": "스타 발굴단",
+      "criterion": "성장시킨 배우·작가 수",
+      "reward": "1위 명성 +5, 2위 명성 +2"
+    },
+    {
+      "id": "O06",
+      "name": "배급망 확장",
+      "criterion": "사용한 서로 다른 배급 분류 수",
+      "reward": "1위 명성 +5, 2위 명성 +2"
+    },
+    {
+      "id": "O07",
+      "name": "한류 개척자",
+      "criterion": "한류 태그 포함 방영 수",
+      "reward": "1위 명성 +5, 2위 명성 +2"
+    },
+    {
+      "id": "O08",
+      "name": "최다 방영",
+      "criterion": "방영한 작품 수",
+      "reward": "1위 명성 +5, 2위 명성 +2"
+    }
+  ]
+}
