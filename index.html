@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<script>if(/[?&]room=/.test(location.search)&&!/desktop=1/.test(location.search)&&matchMedia('(max-width: 900px), (max-height: 540px) and (pointer: coarse)').matches)location.replace('mobile.html'+location.search);</script>
 <script>if(!/desktop=1/.test(location.search)&&matchMedia('(max-width: 900px), (max-height: 540px) and (pointer: coarse)').matches)location.replace('mobile.html'+(localStorage.getItem('fm-mockup-v1')?'?resume=1':''));</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FILM MAKING — 핫시트 목업</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -17,12 +19,15 @@
   <main class="board" id="board"></main>
   <aside class="log" id="log"></aside>
   <section class="players" id="players"></section>
+  <nav id="rail"></nav>
   <div id="pop"></div>
   <div id="ovl"></div>
 </div>
+<div id="rot"><b>⟳</b><span>폰을 가로로 돌려주세요</span></div>
 <script src="fm-cards.js"></script>
 <script src="js/rules.js"></script>
 <script src="js/bot.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/net.js"></script>
 </body>
 </html>
