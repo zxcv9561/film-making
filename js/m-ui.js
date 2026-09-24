@@ -1,6 +1,6 @@
 /* FILM MAKING mockup — mobile UI. Same rules.js / bot.js / save slot as desktop; only the view differs.
    Layout: fixed top bar · 5 pages you swipe sideways (scroll-snap) · tab dots at the bottom · bottom sheets for choices. */
-const SAVE_KEY = 'fm-mockup-v1_v1_5';
+const SAVE_KEY = 'fm-mockup-v1_v1_6';
 const PCOL = ['#3B6FD6', '#D64545', '#3C9D5D', '#E0B400', '#8E5BD6'];
 const PNAME = ['파랑', '빨강', '초록', '노랑', '보라'];
 const PAGES = ['행동', '내 패널', '진열', '상대', '로그'];

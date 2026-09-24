@@ -21,21 +21,21 @@ const RULES = {
   lengths: { short: { mult: 2.2, rounds: 18, label: '짧게' }, std: { mult: 3.3, rounds: 24, label: '표준' }, long: { mult: 4.2, rounds: 30, label: '길게' } },
   dirImpl: ['D01', 'D02', 'D03', 'D04', 'D05', 'D06', 'D07', 'D08', 'D09', 'D10', 'D11', 'D12'],   // directors whose ability is coded
   dice: 6,
-  version: 'v1.5',
+  version: 'v1.6',
   // v1.1 · 시청률 등급표 — 명성 f / 자산 m / 인지도 a for grades C B A S SS
   gradeCut: [8, 13, 18, 23],
   gradeTab: {
-    지상파: { f: [1, 3, 7, 12, 20], m: [1, 1, 2, 2, 3], a: [0, 1, 1, 2, 2] },
-    케이블: { f: [1, 2, 5, 8, 14], m: [2, 3, 3, 4, 5], a: [1, 2, 2, 3, 3] },
-    OTT:   { f: [0, 1, 4, 8, 14], m: [3, 5, 7, 9, 11], a: [0, 1, 1, 2, 2] },
-    웹:    { f: [0, 1, 3, 5, 8], m: [1, 1, 2, 2, 3], a: [2, 3, 4, 5, 6] },
-    해외:  { f: [1, 2, 6, 11, 18], m: [2, 4, 5, 7, 9], a: [1, 1, 2, 3, 3] },
+    지상파: { f: [1, 3, 7, 10, 13], m: [1, 1, 2, 2, 3], a: [0, 1, 1, 2, 2] },
+    케이블: { f: [1, 2, 5, 7, 9], m: [2, 3, 3, 4, 5], a: [1, 2, 2, 3, 3] },
+    OTT:   { f: [0, 1, 4, 6, 9], m: [3, 5, 7, 9, 11], a: [0, 1, 1, 2, 2] },
+    웹:    { f: [0, 1, 3, 4, 6], m: [1, 1, 2, 2, 3], a: [2, 3, 4, 5, 6] },
+    해외:  { f: [1, 2, 6, 9, 12], m: [2, 4, 5, 7, 9], a: [1, 1, 2, 3, 3] },
   },
   // v1.2 · 장르 커리어 3단계 (그 장르로 이미 방영한 편수 k)
   stages: [
     { from: 1, name: '경력', q: [1, 1], b: 0, fame: 0 },   // 그 장르 1~2편 방영 후
     { from: 3, name: '전문', q: [2, 2], b: 1, fame: 1 },   // 3~4편
-    { from: 5, name: '거장', q: [5], b: 2, fame: 4 },      // 5편 이상
+    { from: 5, name: '거장', q: [3], b: 1, fame: 3 },      // 5편 이상
   ],
   achFixed: [], achRandom: 4,
   objPts: { mid: [5, 3, 2], end: [10, 6, 3] },
@@ -134,11 +134,11 @@ function applyDirTextV12() { const T = {
   D03: { ability: '방영 때 자산을 추가로 투입할 수 있습니다. 자산 3당 작품성 +2 · 화제성 +1 (최대 자산 9). 자산 3 이상 투입한 작품은 명성 +2. 부서 특전 · 제작본부 강화 −2, Lv3이면 자산을 투입한 작품 등급 +1.' },
   D04: { ability: '작가와 배우 계약비 합이 6 이하인 작품은 명성 +5 · 자산 +3. 부서 특전 · 기획실 강화 −2, Lv3이면 명성 +7.' },
   D06: { ability: '트렌드를 고를 때 4장 중에서 고릅니다. 내 작품 장르가 유행 장르면 작품성 +3, 트렌드 보너스도 +3 더 붙습니다. 유행 장르가 아니어도 작품성 +1 (시장 감각). 부서 특전 · 홍보팀 강화 −2, Lv3이면 트렌드 보너스 +5.' },
-  D07: { ability: '방영 후 자산 5를 내면 작가와 배우를 모두 전속으로 남길 수 있습니다 (전속 2칸). 다음 작품이 같은 장르일 때만 유지됩니다.', restriction: '장르를 바꾸면 남은 두 카드 모두 계약 종료 · 같은 작가·배우를 그대로 다시 쓴 작품은 장르 커리어 명성 보너스를 받지 않습니다 · 종료 "전속 보유" 보너스는 1장만' },
+  D07: { ability: '방영 후 자산 3을 내면 작가와 배우를 모두 전속으로 남길 수 있습니다 (전속 2칸). 다음 작품이 같은 장르일 때만 유지됩니다.', restriction: '장르를 바꾸면 남은 두 카드 모두 계약 종료 · 같은 작가·배우를 그대로 다시 쓴 작품은 장르 커리어 명성 보너스를 받지 않습니다 · 종료 "전속 보유" 보너스는 1장만' },
   D09: { ability: '작가·배우를 계약할 때 진열 대신 다른 플레이어의 전속 카드를 데려올 수 있습니다. 일반 계약과 같은 비용(계약비 + 칸 비용)이며 추가금은 없습니다. 데려온 카드로 만든 작품은 화제성 +3. 부서 특전 · 캐스팅팀 강화 −2, Lv3이면 빼앗기 계약비 0.', restriction: '원래 소속 플레이어는 보상을 받지 않습니다. 횟수 제한 없음' },
   D11: { ability: '전속 배우를 다시 캐스팅할 때마다 뮤즈 마커 +1 (최대 2). 뮤즈 마커 1개당 그 배우 작품 작품성 +1, 마커가 있으면 화제성 +1.' },
   D12: { ability: '제작본부 Lv1로 시작하고 부서 강화 비용이 항상 −2입니다. 작품 두 편을 동시에 준비할 수 있습니다 (작가·배우 준비 칸 2세트). 두 번째 세트에는 일꾼 없이 계약하고 칸 비용 −1, 계약비 −1. 두 번째 세트로 만든 작품은 작품성 +2 · 화제성 +1. 부서 특전 · 캐스팅팀 강화 추가 −2, Lv3이면 두 번째 세트 계약비 0.', restriction: '방영은 라운드당 1편' },
-}; T.D05 = { ability: '부정 이슈의 효과를 받을 때마다 그 효과 대신 인지도 +2 · 명성 +1을 받습니다. 찌라시가 돈 라운드에 방영하면 화제성 +3.' }; T.D10 = { ability: "방영할 때 주사위 2개를 굴립니다. 합 10 이상 명성 +4, 7~9 명성 +2, 6 이하 명성 −1. 결과와 상관없이 방영마다 명성 +2." };
+}; T.D05 = { ability: '부정 이슈의 효과를 받을 때마다 그 효과 대신 인지도 +2 · 명성 +1을 받습니다. 찌라시가 돈 라운드에 방영하면 화제성 +3.' }; T.D10 = { ability: "방영할 때 주사위 2개를 굴립니다. 합 10 이상 명성 +4, 7~9 명성 +2, 6 이하 명성 −1. 결과와 상관없이 방영마다 명성 +1." };
   for (const id in T) if (DB[id]) Object.assign(DB[id], T[id]);
   for (const id in TREND_V12) if (DB[id]) Object.assign(DB[id], TREND_V12[id]);
   Object.values(DB).forEach(o => { if (o && /^O0\d$/.test(o.id)) { o.reward = '1위 +10 · 2위 +6 · 3위 +3 (중간 시상식 때 절반 점수로 한 번 더)'; if (o.id === 'O04') o.criterion = '작품성 12 이상 방영 수'; } }); }
@@ -484,6 +484,7 @@ function beginSettle(G, p, did, boost = 0) { let b0 = 0;
   const ob = (RULES.origin[w.origin] || {}).buzz || 0; if (ob && !s.noBuzz) { b += ob; bT.push([`원작 · ${w.origin}`, ob]); }
   s.b.forEach(x => { b += x[1]; bT.push(x); });
   if (muse) { b += 1; bT.push([`뮤즈 마커 ×${muse}`, 1]); }
+  if (p.lastPair === w.id + '|' + a.id && (p.pairN || 0) >= 2) { b -= 2; bT.push([`식상함 · 같은 작가·배우 ${p.pairN + 1}연속`, -2]); }
   if (S.d12) { b += 1; bT.push(['멀티 프로젝트 · 두 번째 기획', 1]); }
   if (p.poachA && p.poachA === a.id) { b += 3; bT.push(['캐스팅 승부사 · 이적 화제', 3]); p.poachA = null; }
   if (p.dir === 'D06') { const tr = C(G.trend.now), tm = tr && tr.trend_effect.match(/^([가-힣]+) 방영 시/); if (tm && (tm[1] === g || tm[1] === alt)) { q += 3; qT.push(['트렌드 예언가 · 유행 장르 선점', 3]); } else { q += 1; qT.push(['트렌드 예언가 · 시장 감각', 1]); } }
@@ -551,7 +552,7 @@ function finishSteps(G, S) {
   if (hasCrew(p, 'C08')) add('홍보팀', { aware: 1 });
   if (lvl(p, 'fin') >= 3) add('재무팀 Lv3', { money: 2 });
   if (p.dir === 'D07') { let n = 0; for (let k = p.rec.length - 1; k >= 0 && p.rec[k] === S.g; k--) n++; }
-  if (p.dir === 'D10') add('시청률 도박사 · 최저 보장', { fame: 2 });
+  if (p.dir === 'D10') add('시청률 도박사 · 최저 보장', { fame: 1 });
   if (p.dir === 'D03' && S.boost >= 3) add('블록버스터 · 대작 효과', { fame: 2 });
   { const cr = careerAt((p.career || {})[S.g] || 0); if (cr.fame && !S.noCareerFame) add(`장르 커리어 · ${S.g} ${cr.name}`, { fame: cr.fame }); }
   if (p.dir === 'D04' && (w.cost || 0) + (a.cost || 0) <= 6) add(`저예산의 귀재 · 계약비 합 ${(w.cost || 0) + (a.cost || 0)}`, { fame: lvl(p, 'plan') >= 3 ? 7 : 5, money: 3 });
@@ -593,9 +594,9 @@ function settleFinish(G, keep) {
   // growth
   let aId = a.id; if (S.discover && a.grow_to) aId = a.grow_to.split(' ')[0]; else if (a.grow_to && !/^🎲/.test(a.effect) && !String(a.grow_to).startsWith('←')) aId = a.grow_to.split(' ')[0];
   const grown = aId !== a.id;
-  const isSelf = w.deck === 'self'; if (isSelf) p.selfN = (p.selfN || 0) + 1; if (isSelf && keep === 'writer') keep = null; if (keep === 'both' && (p.dir !== 'D07' || isSelf || p.money < 5)) keep = 'actor';
+  const isSelf = w.deck === 'self'; if (isSelf) p.selfN = (p.selfN || 0) + 1; if (isSelf && keep === 'writer') keep = null; if (keep === 'both' && (p.dir !== 'D07' || isSelf || p.money < 3)) keep = 'actor';
   let kept = null;
-  if (keep === 'both') { [p.excl, p.excl2].forEach(x => x && discard(G, x)); p.excl = w.id; p.excl2 = aId; p.season = { g: S.g, w: w.id, a: aId }; kept = w.id; p.money -= 5; log(G, p.id, `시즌제 · ${w.name}·${C(aId).name} 둘 다 전속 · 자산 −3 (${S.g} 유지 시)`); }
+  if (keep === 'both') { [p.excl, p.excl2].forEach(x => x && discard(G, x)); p.excl = w.id; p.excl2 = aId; p.season = { g: S.g, w: w.id, a: aId }; kept = w.id; p.money -= 3; log(G, p.id, `시즌제 · ${w.name}·${C(aId).name} 둘 다 전속 · 자산 −3 (${S.g} 유지 시)`); }
   else { if (keep === 'writer') { kept = w.id; discard(G, aId !== a.id ? null : a.id); } else if (keep === 'actor') { kept = aId; discard(G, w.id); } else { discard(G, w.id); if (!grown) discard(G, a.id); }
   if (p.excl && kept) discard(G, p.excl);
   if (kept) p.excl = kept; }
@@ -608,7 +609,7 @@ function settleFinish(G, keep) {
   p.career = p.career || {}; if (!S.noCareer) p.career[S.g] = (p.career[S.g] || 0) + 1;
   p.workMoney = (p.workMoney || 0) + S.res.money; if (S.hallyu) p.hallyuN = (p.hallyuN || 0) + 1; if (grown) p.growN = (p.growN || 0) + 1;
   p.cats = p.cats || []; if (!p.cats.includes(d.category)) p.cats.push(d.category);
-  checkAch(G, p, S, w, a);
+  checkAch(G, p, S, w, a); { const k2 = w.id + '|' + aId; p.pairN = p.lastPair === w.id + '|' + a.id ? (p.pairN || 1) + 1 : 1; p.lastPair = k2; }
   (p.sponsors || []).forEach(x => { const s = C(x.id); if (!spHit(s, S, d)) return; x.cnt++; if (s.m) p.money += s.m; if (s.a) p.aware += s.a; if (s.m || s.a) log(G, p.id, `스폰서 · ${s.name} → ${s.m ? '자산 +' + s.m : '인지도 +' + s.a}`); });
   S.steps[7] = { t: [[kept ? `전속 · ${C(kept).name}` : '전속 없음', 0], grown ? [`성장 · ${a.name} → ${C(aId).title}`, 0] : null].filter(Boolean), v: 'done' };
   const calc = S.steps.map((s, i) => ({ n: i + 1, lines: s.t.map(x => x[0] + (x[1] ? ` (+${x[1]})` : '')), v: s.v }));
@@ -651,6 +652,7 @@ function ceremony(G, label, final) {
     rankAward(G, '대상 · 최고 시청률', G.players.map(p => ({ p, v: Math.max(0, ...as.filter(x => x.player === p.name).map(x => x.rating || 0)) })), [4, 2]);
     rankAward(G, '최우수 제작사 · 방영 편수', G.players.map(p => ({ p, v: as.filter(x => x.player === p.name).length })), [2, 1]); }
   scoreObjectives(G, !final);
+  if (!final) { const srt = G.players.slice().sort((x, y) => x.fame - y.fame); srt.slice(0, 2).forEach((p, k) => { const m = k === 0 ? 8 : 5; p.money += m; log(G, p.id, `중간 시상식 · 신인 지원금 → 자산 +${m}`); }); }
   G.cerFrom = G.round + 1; G.ceremony++; }
 function cleanup(G) {
   G.phase = 'Cleanup';

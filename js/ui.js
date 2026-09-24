@@ -1,5 +1,5 @@
 /* FILM MAKING mockup — UI layer. Reads/writes G only through rules.js functions. */
-const SAVE_KEY = 'fm-mockup-v1_v1_5';
+const SAVE_KEY = 'fm-mockup-v1_v1_6';
 const PCOL = ['#3B6FD6', '#D64545', '#3C9D5D', '#E0B400', '#8E5BD6'];
 const PNAME = ['파랑', '빨강', '초록', '노랑', '보라'];
 let J = null, G = null;
