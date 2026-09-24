@@ -3,11 +3,19 @@ const SAVE_KEY = 'fm-mockup-v1';
 const PCOL = ['#3B6FD6', '#D64545', '#3C9D5D', '#E0B400', '#8E5BD6'];
 const PNAME = ['파랑', '빨강', '초록', '노랑', '보라'];
 let J = null, G = null;
-const UI = { pick: null, modal: null, open: new Set(), setup: null, toast: '', botDelay: 700 };
+const UI = { pick: null, modal: null, open: new Set(), setup: null, toast: '', botDelay: 700, tab: 'board' };
 const $ = id => document.getElementById(id);
 const stageEl = () => $('stage');
 let SC = 1;
-function fit() { SC = Math.min(innerWidth / 1920, innerHeight / 1080); stageEl().style.transform = `translate(${(innerWidth - 1920 * SC) / 2}px,${(innerHeight - 1080 * SC) / 2}px) scale(${SC})`; }
+const FORCE_M = /[?&]m=1\b/.test(location.search);
+const isMobile = () => FORCE_M || matchMedia('(pointer: coarse) and (max-width: 950px), (pointer: coarse) and (max-height: 560px)').matches;
+function fit() { const m = isMobile(); const was = document.body.classList.contains('m'); document.body.classList.toggle('m', m);
+  if (m) { SC = 1; stageEl().style.transform = ''; } else { SC = Math.min(innerWidth / 1920, innerHeight / 1080); stageEl().style.transform = `translate(${(innerWidth - 1920 * SC) / 2}px,${(innerHeight - 1080 * SC) / 2}px) scale(${SC})`; }
+  if (was !== m && J) render(); }
+function renderRail() { const r = $('rail'); if (!r) return; const mine = G && !G.over && !botTurnNow();
+  const tabs = [['board', '행동', mine ? '●' : ''], ['players', '패널', ''], ['market', '진열', ''], ['log', '로그', G ? G.log.length : '']];
+  r.innerHTML = tabs.map(([k, l, b]) => `<button data-tab="${k}" class="${UI.tab === k ? 'on' : ''}"><b>${l}</b><span>${b}</span></button>`).join('');
+  stageEl().dataset.tab = UI.tab; }
 function save() { try { if (G) localStorage.setItem(SAVE_KEY, JSON.stringify(G)); } catch (e) {} }
 function toast(t) { UI.toast = t; renderOverlay(); clearTimeout(toast.h); toast.h = setTimeout(() => { UI.toast = ''; renderOverlay(); }, 2600); }
 const pcol = id => G.players[id].color, pnm = id => G.players[id].name;
@@ -30,8 +38,8 @@ function tile(id) {
 
 /* ── board slot ── */
 function sl(zone, idx, occ, label = '') {
-  if (occ != null) return `<div class="sl">${W(pcol(occ))}</div>`;
   const st = slotState(G, zone, idx), key = JSON.stringify(idx);
+  if (occ != null) return st.ok && st.coord ? `<div class="sl can" data-zone="${zone}" data-idx='${key}' title="제작 코디네이터 · 칸 비용 +1">${W(pcol(occ))}<span class="cost">＋1</span></div>` : `<div class="sl">${W(pcol(occ))}</div>`;
   if (st.ok) return `<div class="sl can" data-zone="${zone}" data-idx='${key}'>${label || '<span class="cost" style="color:var(--muted)">빈 칸</span>'}</div>`;
   const lock = /인지도 \d+ 필요/.test(st.why) && zone === 'star';
   return `<div class="sl ${lock ? 'lock' : 'dim'}" title="${esc(st.why)}">${lock ? '<span style="font-size:15px">🔒</span>' : ''}${label}<span class="why2">${esc(st.why)}</span></div>`;
@@ -41,10 +49,11 @@ const zoneBox = (t, sub, slots, extra = '', grp = '') => `<div class="z ${grp}">
 
 /* ── game screen ── */
 function renderGame() {
-  const p = cur(G), stg = stageEl(); stg.classList.toggle('picking', !!UI.pick);
+  const p = cur(G), stg = stageEl(); stg.classList.toggle('picking', !!UI.pick); renderRail();
   const FMAX = Math.max(40, ...G.players.map(x => x.fame + 5)), px = v => Math.max(0, v) / FMAX * 400;
   const cells = (v, max, ev) => `<div class="cells">${Array.from({ length: max }, (_, i) => `<div class="c ${i < v ? 'f' : ''} ${ev.includes(i + 1) ? 'ev' : ''}"></div>`).join('')}</div>`;
   $('top').innerHTML = `
+    <div class="mres"><i style="background:${p.color}"></i><b>${esc(p.name)}</b><span>${I.money}${p.money}</span><span>${I.fame}${p.fame}</span><span>${I.aware}${p.aware}</span><span class="lab">일꾼 ${RULES.workers - p.placed}</span></div>
     <div class="brand"><span class="lab">HOTSEAT MOCKUP · ${G.n}P · ${esc(G.seed)}</span><b>FILM MAKING</b></div>
     <div class="phase"><span class="rd">ROUND ${G.round}</span><span class="ph">${{ TrendPick: '트렌드', Action: '행동 단계', Settle: '방영 정산', Cleanup: '정리' }[G.phase] || G.phase}</span></div>
     <div class="order"><span class="lab" style="margin-right:4px">턴 순서</span>${G.order.map((id, i) => `${i ? '<span class="sep">›</span>' : ''}<span class="o ${id === p.id ? 'cur' : ''}"><i style="background:${pcol(id)}"></i>${esc(pnm(id))}</span>`).join('')}</div>
@@ -61,12 +70,12 @@ function renderGame() {
   $('market').innerHTML = grp('배우', 'actor', 4, `덱 ${G.decks.actor.draw.length}`) + grp('작가', 'writer', 4, `덱 ${G.decks.writer.draw.length}`) +
     grp('스타', 'star', 3, p.aware >= RULES.starUnlock ? `인지도 ${p.aware} · 해금` : `🔒 인지도 ${RULES.starUnlock} 필요`) + grp('투자사', 'investor', 3, `덱 ${G.decks.investor.draw.length}`) + grp('제작진', 'crew', 3, `덱 ${G.decks.crew.draw.length}`);
   const b = G.board;
-  const dsHTML = G.dists.map(did => { const d = C(did), f = BASE.find(x => x.category === d.category) || {};
+  const dsHTML = G.dists.map(did => { const d = C(did); const di = distInfo(did), f = { condition: di.cond, fame: di.f.fame, awareness: di.f.aware, money: di.f.money };
     return `<div class="ds"><div class="dh">${DIST_ICON[d.category] || ''}<div class="tx"><b>${esc(d.name)}</b><span>${esc(d.category)} · ${esc(d.concept)}</span></div></div>
       <dl class="fm"><dt>조건</dt><dd>${esc(f.condition)}</dd><dt>${I.fame}명성</dt><dd>${esc(f.fame)}</dd><dt>${I.aware}인지도</dt><dd>${esc(f.awareness)}</dd><dt>${I.money}자산</dt><dd>${esc(f.money)}</dd></dl>
       <div class="md">${esc(d.modifier)}</div><div class="dsl">${b.air[did].map((o, k) => sl('air', [did, k], o)).join('')}</div></div>`; }).join('');
   $('board').innerHTML = `
-    <div class="bhd"><h3>액션 보드</h3><div class="states"><span>빈 칸 클릭 → 대상 선택 → 확인</span><span>흐린 칸에 마우스 → 이유</span></div></div>
+    <div class="bhd"><h3>액션 보드</h3>${freeActions(G, cur(G)).map(a => `<button class="tb" data-free="${a.id}" style="border-color:var(--money);color:var(--money)">＋ ${esc(a.label)}</button>`).join('')}<div class="states"><span>빈 칸 클릭 → 대상 선택 → 확인</span><span>흐린 칸에 마우스 → 이유</span></div></div>
     <div class="zones">
       ${zoneBox('작가 계약', '3칸', b.writer.map((o, i) => sl('writer', i, o, costLab(RULES.slotCost[i]))).join(''))}
       ${zoneBox('배우 캐스팅', '3칸', b.actor.map((o, i) => sl('actor', i, o, costLab(RULES.slotCost[i]))).join(''))}
@@ -109,10 +118,14 @@ function renderGame() {
 
 /* ── overlays: pick banner, modals, trend pick, settlement, setup, results ── */
 function modal(title, kick, body, foot) { return `<div class="scrim"><div class="modal"><div class="mh"><span class="lab">${kick}</span><h2>${title}</h2></div><div class="mb">${body}</div><div class="mf">${foot}</div></div></div>`; }
+function bonusModal() { const p = P(G, G.bonus.pid);
+  return modal('시즌2 기획팀 · 작가 계약', `${esc(p.name)} · 일꾼 없이 · 칸 비용 없음`, `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px">${bonusChoices(G).map(id => `<button class="optbtn" data-bonus="${id}" style="flex-direction:column;align-items:flex-start;gap:4px"><b>${esc(C(id).name)}</b><span style="font-size:13px;color:var(--muted)">${esc(C(id).title)} · 작품성 ${C(id).quality} · ${(C(id).genres || []).join('·')}</span><span style="color:var(--money)">자산 −${placeCost(G, p, 'writer', 0, id, 'market')}</span></button>`).join('')}</div>`, '<button class="btn" data-bonus="">건너뛰기</button>'); }
 function renderOverlay() {
   let h = '';
+  if (G && !G.over && G.bonus && !P(G, G.bonus.pid).bot) { $('ovl').innerHTML = bonusModal(); return; }
   if (UI.toast) h += `<div class="banner" style="background:#C2410C">${esc(UI.toast)}</div>`;
   else if (botTurnNow()) { const who = G.phase === 'TrendPick' ? G.players[G.trend.picker] : G.phase === 'Settle' ? G.players[G.pending.pid] : cur(G); h += `<div class="banner" style="background:${who.color}">${esc(who.name)} 생각 중…</div>`; }
+  else if (UI.pick && isMobile()) h += `<div class="scrim sheet-scrim"><div class="sheet"><div class="sh-h"><b>${esc(UI.pick.msg)}</b><button class="btn" data-act="cancel">취소</button></div><div class="sh-row">${UI.pick.ids.map(tile).join('')}</div></div></div>`;
   else if (UI.pick) h += `<div class="banner">${esc(UI.pick.msg)}<button data-act="cancel">취소 · Esc</button></div>`;
   if (G && !G.over) {
     if (G.phase === 'TrendPick') h += modal('트렌드 선택', `ROUND ${G.round} · 꼴찌 ${esc(pnm(G.trend.picker))}가 고름`, `<div style="display:flex;gap:18px">${G.trend.choices.map(id => `<div style="cursor:pointer" data-trend="${id}">${trendCard(C(id))}</div>`).join('')}</div><div style="font-size:13px;color:var(--muted)">고른 카드는 <b>다음 라운드</b> 칸으로 들어가고, 지금 다음 라운드 카드가 이번 라운드로 밀려옵니다. 고른 카드의 이슈는 바로 해결합니다.</div>`, '<span class="lab" style="align-self:center">카드를 클릭</span>');
@@ -162,7 +175,8 @@ function onTile(id) {
   renderOverlay();
 }
 function confirmAir(idx) {
-  const p = cur(G), d = C(idx[0]), f = BASE.find(x => x.category === d.category), w = C(p.prep.writer), a = C(p.prep.actor), q = previewQuality(G, p);
+  const did = idx[0]; const di = distInfo(did), f = { condition: di.cond, fame: di.f.fame, awareness: di.f.aware, money: di.f.money };
+  const p = cur(G), d = C(idx[0]), w = C(p.prep.writer), a = C(p.prep.actor), q = previewQuality(G, p);
   const conds = distCond(G, p, idx[0]); const inv = p.inv ? C(p.inv) : null;
   UI.confirm = { zone: 'air', idx, choice: {} };
   UI.modal = modal(`${esc(d.name)} 방영`, `${esc(d.category)} · ${esc(d.concept)} · 정산 미리보기`, `<div class="brk"><span>작품</span><b>${esc(w.name)} × ${esc(a.name)}</b><span>예상 작품성 (주사위 제외)</span><b>${q}</b><span>배급사 공식</span><b>명성 ${esc(f.fame)} · 인지도 ${esc(f.awareness)} · 자산 ${esc(f.money)}</b><span>변경점</span><b style="font-weight:600">${esc(d.modifier)}</b>${conds.map(c => `<span>조건</span><b style="color:${c.ok ? 'var(--money)' : '#C2410C'}">${esc(c.why.replace(' 필요', ''))} ${c.ok ? '✓' : '✗'}</b>`).join('')}${inv ? `<span>투자 ${esc(inv.name)}</span><b>${esc(inv.next_drama_condition)} · 정산 6단계에서 판정</b>` : ''}</div>`, '<button class="btn" data-act="close">취소</button><button class="btn pri" data-act="confirm">방영 확정</button>');
@@ -226,8 +240,12 @@ document.addEventListener('click', e => {
     if (q('[data-act="start"]')) { G = newGame(J, { seed: S.seed, players: S.pl.slice(0, S.n).map(p => ({ name: p.name + (p.bot ? ' 🤖' : ''), color: PCOL[p.c], dir: p.dir, bot: p.bot })) }); save(); $('ovl').innerHTML = ''; return render(); }
     return;
   }
+  if ((el = q('button[data-tab]'))) { UI.tab = el.dataset.tab; return renderGame(); }
+  if (isMobile() && !UI.pick && !UI.modal && (el = q('.mt[data-id]'))) { UI.modal = modal(esc(C(el.dataset.id).name), '카드', fullCard(el.dataset.id), '<button class="btn" data-act="close">닫기</button>'); return renderOverlay(); }
   if (botTurnNow() && !q('[data-act="dev"],[data-act="new"],[data-act="close"],[data-act="devsave"],[data-act="speed"],.ev.set')) return;
   if (q('[data-act="speed"]')) { UI.botDelay = UI.botDelay > 100 ? 60 : 700; return renderGame(); }
+  if ((el = q('[data-free]'))) { const r = useFree(G, el.dataset.free); if (!r.ok) toast(r.why); save(); return render(); }
+  if ((el = q('[data-bonus]'))) { const r = bonusWriter(G, el.dataset.bonus || null); if (r && r.ok === false) toast(r.why); save(); return render(); }
   if ((el = q('[data-trend]'))) { pickTrend(G, el.dataset.trend); save(); return render(); }
   if (q('[data-act="roll"]')) { settleRoll(G); save(); return render(); }
   if ((el = q('[data-keep]'))) { settleFinish(G, el.dataset.keep === 'none' ? null : el.dataset.keep); save(); return render(); }
@@ -247,7 +265,7 @@ document.addEventListener('click', e => {
 document.addEventListener('input', e => { const i = e.target.dataset && e.target.dataset.name; if (i != null && UI.setup) UI.setup.pl[+i].name = e.target.value; if (e.target.id === 'seed' && UI.setup) { UI.setup.seed = e.target.value; UI.setup.opts = dirOpts(e.target.value || 'x'); UI.setup.pl.forEach(p => (p.dir = null)); clearTimeout(renderSetup.h); renderSetup.h = setTimeout(() => { const pos = e.target.selectionStart; renderSetup(); const s = $('seed'); s.focus(); s.setSelectionRange(pos, pos); }, 400); } });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && G && !G.over) { if (UI.modal) { UI.modal = null; UI.confirm = null; renderOverlay(); } else if (UI.pick) { UI.pick = null; render(); } } });
 // hover enlarge
-document.addEventListener('mouseover', e => { const pop = $('pop'); const t = e.target.closest && e.target.closest('.mt[data-id]'); if (!t || !G || G.over) { pop.style.display = 'none'; return; }
+document.addEventListener('mouseover', e => { const pop = $('pop'); if (isMobile()) { pop.style.display = 'none'; return; } const t = e.target.closest && e.target.closest('.mt[data-id]'); if (!t || !G || G.over) { pop.style.display = 'none'; return; }
   pop.innerHTML = fullCard(t.dataset.id); pop.style.display = 'block'; const sr = stageEl().getBoundingClientRect(), r = t.getBoundingClientRect();
   const tx = (r.left - sr.left) / SC, ty = (r.top - sr.top) / SC, tw = r.width / SC, cw = pop.offsetWidth, ch = pop.offsetHeight;
   let left = tx + tw + 10; if (left + cw > 1910) left = tx - cw - 10; pop.style.left = left + 'px'; pop.style.top = Math.max(10, Math.min(1080 - ch - 10, ty - ch / 3)) + 'px'; });

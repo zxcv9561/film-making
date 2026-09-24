@@ -123,34 +123,86 @@ function workersLeft(G, p) { return RULES.workers - p.placed; }
 function slotState(G, zone, i) {
   const p = cur(G); const b = G.board;
   if (G.phase !== 'Action') return err('행동 단계가 아님');
+  if (G.bonus) return err('시즌2 기획팀 작가 계약을 먼저 끝내세요');
   if (workersLeft(G, p) <= 0) return err('남은 일꾼 없음');
   if (zone === 'star') { if (+i !== p.id) return err('다른 플레이어의 개인 칸'); if (b.star[i] != null) return err('이미 사용'); if (p.aware < RULES.starUnlock) return err(`인지도 ${RULES.starUnlock} 필요`); if (!G.market.star.some(id => id && C(id).required_fame <= p.aware)) return err('계약 가능한 스타 없음'); return ok(); }
   if (zone === 'fund') return ok();
   if (zone === 'air') { const s = b.air[i[0]]; if (s[i[1]] != null) return err('이미 차지됨'); return canAir(G, p, i[0]); }
-  const arr = b[zone]; if (arr[i] != null) return err('이미 차지됨');
-  if (zone === 'writer' || zone === 'actor') { const min = Math.min(...G.market[zone].filter(Boolean).map(id => C(id).cost), p.excl && C(p.excl)[zone === 'writer' ? 'quality' : 'acting'] != null ? 0 : 99) + RULES.slotCost[i]; if (p.money < min) return err('자산 부족'); return ok(); }
-  if (zone === 'invest') { if (p.inv) return err('투자 계약 1건 보유 중'); return ok(); }
-  if (zone === 'crew') { if (p.money < Math.min(...G.market.crew.filter(Boolean).map(id => C(id).price))) return err('자산 부족'); return ok(); }
-  if (zone === 'promo') { if (p.money < 2) return err('자산 부족'); return ok(); }
+  const arr = b[zone]; const coord = arr[i] != null;
+  if (coord && !(hasCrew(p, 'C15') && p.coordUsed !== G.round)) return err(hasCrew(p, 'C15') ? '제작 코디네이터 이번 라운드 사용함' : '이미 차지됨');
+  const ex = coord ? 1 : 0;
+  if (zone === 'writer' || zone === 'actor') { const min = Math.min(...G.market[zone].filter(Boolean).map(id => C(id).cost), p.excl && C(p.excl)[zone === 'writer' ? 'quality' : 'acting'] != null ? 0 : 99) + RULES.slotCost[i]; if (p.money < min + ex) return err('자산 부족'); return ok({ coord }); }
+  if (zone === 'invest') { if (p.inv) return err('투자 계약 1건 보유 중'); if (p.money < ex) return err('자산 부족'); return ok({ coord }); }
+  if (zone === 'crew') { if (p.money < ex + Math.min(...G.market.crew.filter(Boolean).map(id => C(id).price))) return err('자산 부족'); return ok({ coord }); }
+  if (zone === 'promo') { if (p.money < 2 + ex) return err('자산 부족'); return ok({ coord }); }
   return ok();
 }
+/* Effective distributor rules = category base formula with the tile's modifier applied on top. */
+function distInfo(did) {
+  const d = C(did), base = BASE.find(x => x.category === d.category), mod = d.modifier; let m;
+  const f = { fame: base.fame, aware: base.awareness, money: base.money };
+  let aware = +((base.condition.match(/인지도 (\d+)/) || [])[1] || 0), hallyu = /한류 태그 포함/.test(base.condition), minQ = 0, genres = null;
+  if ((m = mod.match(/조건 인지도 (\d+)/))) aware = +m[1];
+  if (/한류 불필요/.test(mod)) hallyu = false;
+  if ((m = mod.match(/조건 작품성 (\d+) 이상/))) minQ = +m[1];
+  if ((m = mod.match(/([가-힣·]+)만 방영 가능/))) genres = m[1].split('·');
+  if ((m = mod.match(/(?:^|, )명성 (0|작품성[^,]*)(?=,|$)/))) f.fame = m[1].trim();
+  if (/명성 올림 처리/.test(mod)) f.fame = f.fame.replace('내림', '올림');
+  if ((m = mod.match(/(?:^|, )인지도 (화제성 \+ \d+|[+−-]?\d+)(?=,|$)/))) f.aware = m[1];
+  if ((m = mod.match(/(?:^|, )자산 (\d+ \+ 화제성|[+−-]?\d+)(?=,|$)/))) f.money = m[1];
+  if ((m = mod.match(/자산은 \+(\d)로 감소/))) f.money = '+' + m[1];
+  const cond = [aware ? `인지도 ${aware} 이상` : '', hallyu ? '한류 태그 포함' : '', minQ ? `작품성 ${minQ} 이상` : '', genres ? genres.join('·') + ' 작품만' : ''].filter(Boolean).join(' · ') || '없음';
+  return { d, f, aware, hallyu, minQ, genres, cond };
+}
 function distCond(G, p, did) {
-  const d = C(did), base = BASE.find(x => x.category === d.category), mod = d.modifier;
-  const w = C(p.prep.writer), a = C(p.prep.actor); const conds = [];
-  let aw = (base.condition.match(/인지도 (\d+)/) || [])[1]; const mo = mod.match(/조건 인지도 (\d+)/); if (mo) aw = mo[1];
+  const di = distInfo(did), w = C(p.prep.writer), a = C(p.prep.actor), conds = [];
   const ignoreAware = a && /배급사 인지도 조건 무시/.test(a.effect);
-  if (aw && !ignoreAware) conds.push({ ok: p.aware >= +aw, why: `인지도 ${aw} 필요` });
-  if (/한류 태그 포함/.test(base.condition) && !/한류 불필요/.test(mod)) conds.push({ ok: !!((w && w.hallyu) || (a && a.hallyu)), why: '한류 태그 필요' });
-  const q = mod.match(/조건 작품성 (\d+) 이상/); if (q && w && a) conds.push({ ok: previewQuality(G, p) >= +q[1], why: `작품성 ${q[1]} 이상 필요 (주사위 제외 예상)` });
+  if (di.aware && !ignoreAware) conds.push({ ok: p.aware >= di.aware, why: `인지도 ${di.aware} 필요` });
+  if (di.hallyu) conds.push({ ok: !!((w && w.hallyu) || (a && a.hallyu)), why: '한류 태그 필요' });
+  if (di.minQ && w && a) conds.push({ ok: previewQuality(G, p) >= di.minQ, why: `작품성 ${di.minQ} 이상 필요 (주사위 제외 예상)` });
+  if (di.genres && w && a) { const { g } = workGenre(w, a); conds.push({ ok: di.genres.includes(g), why: `${di.genres.join('·')} 작품만 방영 가능` }); }
   return conds;
 }
 function canAir(G, p, did) { if (!p.prep.writer || !p.prep.actor) return err('준비 칸에 작가와 배우 필요'); const bad = distCond(G, p, did).find(c => !c.ok); return bad ? err(bad.why) : ok(); }
 
 /* ── contract / place ── */
-function placeCost(G, p, zone, i, card, from) { if (zone === 'star') return C(card).cost; const c = C(card); const slot = RULES.slotCost[i]; if (from === 'excl' && RULES.exclReuse === 'slotOnly') return slot; return c.cost + slot; }
+function hasCrew(p, id) { return p.crews.includes(id); }
+function coordExtra(G, zone, i) { return zone !== 'star' && zone !== 'fund' && zone !== 'air' && G.board[zone] && G.board[zone][i] != null ? 1 : 0; }
+function placeCost(G, p, zone, i, card, from) {
+  const c = C(card), isW = c.quality != null, extra = coordExtra(G, zone, i);
+  if (zone === 'star') return Math.max(0, c.cost - (isW && hasCrew(p, 'C16') ? 1 : 0));
+  const slot = RULES.slotCost[i] + extra;
+  if (from === 'excl') { if (p.exclFree === card) return extra; return Math.max(0, slot - (hasCrew(p, 'C11') ? 1 : 0)); }
+  return Math.max(0, c.cost - (isW && hasCrew(p, 'C16') ? 1 : 0)) + slot;
+}
+const AWARE_TIERS = [3, 6, 10];
+function awareTiers(n) { return AWARE_TIERS.filter(t => n >= t).length; }
+function awareUp(G, p, from) { if (!hasCrew(p, 'C08')) return; const k = awareTiers(p.aware) - awareTiers(from); if (k > 0) { p.money += 2 * k; log(G, p.id, `홍보팀 · 인지도 구간 도달 → 자산 +${2 * k}`); } }
+/* Crew "추가 액션" that cost no worker. */
+function freeActions(G, p) {
+  if (G.phase !== 'Action' || G.pending || G.bonus || cur(G).id !== p.id) return [];
+  const u = p.freeUsed || {}, out = [];
+  if (hasCrew(p, 'C13') && u.C13 !== G.round) out.push({ id: 'C13', label: '라인PD · 자산 +2' });
+  if (hasCrew(p, 'C18') && u.C18 !== G.round && awareTiers(p.aware)) out.push({ id: 'C18', label: `기념품 사업부 · 자산 +${awareTiers(p.aware)}` });
+  return out;
+}
+function useFree(G, id) { const p = cur(G); if (!freeActions(G, p).some(x => x.id === id)) return err('사용할 수 없음');
+  p.freeUsed = p.freeUsed || {}; p.freeUsed[id] = G.round; const n = id === 'C13' ? 2 : awareTiers(p.aware); p.money += n;
+  log(G, p.id, `${C(id).name} · 일꾼 없이 자산 +${n}`); G.undo = null; return ok(); }
+/* C14 시즌2 기획팀: right after airing, contract one writer with no worker and no slot cost. */
+function bonusChoices(G) { const b = G.bonus; if (!b) return []; const p = P(G, b.pid); return G.market.writer.filter(id => id && placeCost(G, p, 'writer', 0, id, 'market') <= p.money); }
+function bonusWriter(G, id) { const b = G.bonus; if (!b) return err('보너스 없음'); const p = P(G, b.pid); G.bonus = null;
+  if (id) { const x = C(id), cost = placeCost(G, p, 'writer', 0, id, 'market'); if (cost > p.money) return err('자산 부족');
+    p.money -= cost; G.market.writer[G.market.writer.indexOf(id)] = null; if (p.prep.writer) discard(G, p.prep.writer); p.prep.writer = id;
+    if (hasCrew(p, 'C10')) p.money += 1;
+    log(G, p.id, `시즌2 기획팀 · 일꾼 없이 작가 계약 · ${x.name} · 자산 −${cost}${hasCrew(p, 'C10') ? ' · 기획PD +1' : ''}`); }
+  else log(G, p.id, '시즌2 기획팀 · 작가 계약 건너뜀');
+  return advance(G); }
 function snapshot(G) { G.undo = JSON.stringify({ ...G, undo: null }); }
 function place(G, zone, i, choice) {
   const st = slotState(G, zone, i); if (!st.ok) return st; const p = cur(G); snapshot(G);
+  const ex = st.coord ? 1 : 0; if (st.coord) { p.coordUsed = G.round; (G.board.extra = G.board.extra || []).push({ zone, i, pid: p.id }); }
+  const mark = (arr, k) => { if (!st.coord) arr[k] = p.id; };
   if (zone === 'writer' || zone === 'actor' || zone === 'star') {
     const { card, from } = choice; const x = C(card); const kind = x.quality != null ? 'writer' : 'actor';
     if (zone !== 'star' && kind !== zone) return err('카드 유형이 다름');
@@ -160,21 +212,23 @@ function place(G, zone, i, choice) {
     if (from === 'excl') { p.excl = null; } else { const mk = G.market[zone === 'star' ? 'star' : zone]; mk[mk.indexOf(card)] = null; }
     const out = p.prep[kind]; if (out) discard(G, out);
     p.prep[kind] = card;
-    if (zone === 'star') G.board.star[i] = p.id; else G.board[zone][i] = p.id;
-    log(G, p.id, `${zone === 'star' ? '대스타 계약' : zone === 'writer' ? '작가 계약' : '배우 캐스팅'} · ${x.name} (${x.title}) · 자산 −${cost}${out ? ` · ${C(out).name} 밀려남` : ''}`);
+    if (zone === 'star') G.board.star[i] = p.id; else mark(G.board[zone], i);
+    if (from === 'excl') p.exclFree = null;
+    const pdBonus = kind === 'writer' && hasCrew(p, 'C10') ? 1 : 0; p.money += pdBonus;
+    log(G, p.id, `${zone === 'star' ? '대스타 계약' : zone === 'writer' ? '작가 계약' : '배우 캐스팅'} · ${x.name} (${x.title}) · 자산 −${cost}${pdBonus ? ' · 기획PD +1' : ''}${ex ? ' · 제작 코디네이터(칸 비용 +1)' : ''}${out ? ` · ${C(out).name} 밀려남` : ''}`);
   } else if (zone === 'invest') {
     const v = C(choice.card); G.market.investor[G.market.investor.indexOf(choice.card)] = null;
-    p.money += v.payout; p.inv = choice.card; p.invCount++; G.board.invest[i] = p.id;
-    log(G, p.id, `투자 유치 · ${v.name} · 자산 +${v.payout} · 조건: ${v.next_drama_condition}`);
+    const fin = hasCrew(p, 'C12') ? 2 : 0; p.money += v.payout + fin - ex; p.inv = choice.card; p.invCount++; mark(G.board.invest, i);
+    log(G, p.id, `투자 유치 · ${v.name} · 자산 +${v.payout}${fin ? ' · 재무팀 +2' : ''}${ex ? ' · 코디네이터 −1' : ''} · 조건: ${v.next_drama_condition}`);
   } else if (zone === 'crew') {
-    const c = C(choice.card); if (p.money < c.price) return err('자산 부족');
-    p.money -= c.price; G.market.crew[G.market.crew.indexOf(choice.card)] = null;
+    const c = C(choice.card); if (p.money < c.price + ex) return err('자산 부족');
+    p.money -= c.price + ex; G.market.crew[G.market.crew.indexOf(choice.card)] = null;
     let out = null; if (p.crews.length >= 3) { out = p.crews.splice(choice.replace ?? 0, 1)[0]; discard(G, out); }
-    p.crews.push(choice.card); G.board.crew[i] = p.id;
+    p.crews.push(choice.card); mark(G.board.crew, i);
     log(G, p.id, `제작진 고용 · ${c.name} · 자산 −${c.price}${out ? ` · ${C(out).name} 해고` : ''}`);
   } else if (zone === 'promo') {
-    const o = [{ c: 2, a: 1 }, { c: 4, a: 3 }][choice.opt]; if (p.money < o.c) return err('자산 부족');
-    p.money -= o.c; p.aware += o.a; G.board.promo[i] = p.id; log(G, p.id, `홍보 · 자산 −${o.c} → 인지도 +${o.a}`);
+    const o = [{ c: 2, a: 1 }, { c: 4, a: 3 }][choice.opt]; if (p.money < o.c + ex) return err('자산 부족');
+    const a0 = p.aware; p.money -= o.c + ex; p.aware += o.a; mark(G.board.promo, i); log(G, p.id, `홍보 · 자산 −${o.c + ex} → 인지도 +${o.a}`); awareUp(G, p, a0);
   } else if (zone === 'fund') {
     const o = choice.opt; if (o === 0) { p.money += 2; log(G, p.id, '자금 확보 · 자산 +2'); }
     else if (o === 1) { if (p.money < 5) return err('자산 부족'); p.money -= 5; applyRes(G, p, { fame: 1 }, 'ind'); log(G, p.id, '자금 확보 · 자산 −5 → 명성 +1'); }
@@ -200,9 +254,11 @@ function hasCrewNamed(p, name) { return p.crews.some(id => C(id).name === name.t
 function statBonuses(G, p, w, a, g) {
   const q = [], b = []; const notes = [];
   const noBuzz = /화제성 보너스를 받을 수 없음/.test(a.effect);
-  p.crews.forEach(id => { const c = C(id); if (c.kind !== '상시') { if (id !== 'C07') notes.push(`${c.name}(${c.kind}) 미구현`); return; }
-    const m = c.effect.match(/^(모든 작품|[가-힣·]+) (작품성|화제성) \+(\d)/); if (!m) { notes.push(`${c.name} 미구현`); return; }
-    if (m[1] === '모든 작품' || m[1].split('·').includes(g)) (m[2] === '작품성' ? q : b).push([c.name, +m[3]]); });
+  const HANDLED = ['C06', 'C07', 'C08', 'C10', 'C11', 'C12', 'C13', 'C14', 'C15', 'C16', 'C17', 'C18'];
+  p.crews.forEach(id => { const c = C(id); let m;
+    if ((m = c.effect.match(/^아이돌 주연 (작품성|화제성) \+(\d)$/))) { if (a.type === '아이돌') (m[1] === '작품성' ? q : b).push([c.name, +m[2]]); return; }
+    if ((m = c.effect.match(/^(모든 작품|[가-힣·]+) (작품성|화제성) \+(\d)$/))) { if (m[1] === '모든 작품' || m[1].split('·').includes(g)) (m[2] === '작품성' ? q : b).push([c.name, +m[3]]); return; }
+    if (!HANDLED.includes(id)) notes.push(`${c.name}(${c.kind}) 미구현`); });
   [[w, '작가'], [a, '배우']].forEach(([x]) => { const e = x.effect || ''; let m;
     if ((m = e.match(/^(.+?) 보유 시 (작품성|화제성) \+(\d)/))) { if (m[1].split('또는').some(n => hasCrewNamed(p, n))) (m[2] === '작품성' ? q : b).push([`${x.name} · ${m[1]} 보유`, +m[3]]); }
     else if ((m = e.match(/아이돌 주연이면 (작품성|화제성) \+(\d)/))) { if (a.type === '아이돌') (m[1] === '작품성' ? q : b).push([`${x.name} · 아이돌 주연`, +m[2]]); } });
@@ -226,26 +282,48 @@ function beginSettle(G, p, did) {
   if (s.noBuzz) S.notes.push(`${a.name}: 화제성 보너스 없음`);
   S.q = q; S.b = b; S.steps[0] = { t: qT, v: q }; S.steps[1] = { t: bT, v: b };
   // dice sources
-  if (/^🎲/.test(a.effect || '')) S.dice.push({ src: a.name, kind: /6이면/.test(a.effect) ? 'discover' : 'range', text: a.effect });
-  if (/^🎲/.test(w.effect || '')) S.dice.push({ src: w.name, kind: 'range', text: w.effect });
-  if (p.crews.includes('C07')) S.dice.push({ src: '바이럴팀', kind: 'viral', text: C('C07').effect });
+  S.noBuzz = s.noBuzz;
+  if (/🎲/.test(a.effect || '')) S.dice.push({ src: a.name, kind: 'card', text: a.effect });
+  if (/🎲/.test(w.effect || '')) S.dice.push({ src: w.name, kind: 'card', text: w.effect });
+  if (p.dir === 'D10') S.dice.push({ src: '시청률 도박사 (감독)', kind: 'd10', text: C('D10').ability });
+  if (hasCrew(p, 'C07')) S.dice.push({ src: '바이럴팀', kind: 'viral', text: C('C07').effect });
   if (!S.dice.length) { S.rolled = true; S.steps[2] = { t: [['주사위 없음', 0]], v: '—' }; finishSteps(G, S); }
   return S;
 }
+/* "🎲 ... : 4~5 화제성 +2 / 6 \"밈 스타\" 화제성 +5, 인지도 +2" → [{test, fx:[[stat,n]], grow}] */
+function diceClauses(text) {
+  return text.replace(/^.*?주사위\s*:\s*/, '').split('/').map(s => { s = s.trim(); let t = null, m;
+    if ((m = s.match(/(\d)\s*~\s*(\d)/))) { const lo = +m[1], hi = +m[2]; t = r => r >= lo && r <= hi; }
+    else if (/짝수/.test(s)) t = r => r % 2 === 0; else if (/홀수/.test(s)) t = r => r % 2 === 1;
+    else if ((m = s.match(/^(\d)(?:이면|\s|$)/))) { const v = +m[1]; t = r => r === v; }
+    const fx = [], re = /(연기력|작품성|화제성|명성|인지도|자산)\s*([+−-])\s*(\d+)/g; let e; while ((e = re.exec(s))) fx.push([e[1], (e[2] === '+' ? 1 : -1) * +e[3]]);
+    return { t, fx, grow: /성장 카드로 교체/.test(s), lbl: (s.match(/"([^"]+)"/) || [])[1] || '' }; }).filter(c => c.t && c.fx.length);
+}
+function applyDiceFx(S, fx) { const out = []; fx.forEach(([k, n]) => {
+    if (k === '연기력' || k === '작품성') S.q += n; else if (k === '화제성') { if (S.noBuzz && n > 0) return; S.b += n; }
+    else S.res[{ 명성: 'fame', 인지도: 'aware', 자산: 'money' }[k]] += n;
+    out.push(`${k} ${n > 0 ? '+' : ''}${n}`); }); return out.join(', '); }
 function settleRoll(G) {
   const S = G.pending; if (!S || S.rolled) return err('굴릴 주사위 없음');
-  const t = []; S.dice.forEach(d => { const r = roll(G); d.r = r;
-    if (d.kind === 'viral') { if (r === 6) { S.res.aware += 3; t.push([`${d.src} 🎲${r} · 6 → 인지도 +3`, 0]); } else if (r <= S.b) { S.res.aware += 2; t.push([`${d.src} 🎲${r} ≤ 화제성 ${S.b} → 인지도 +2`, 0]); } else t.push([`${d.src} 🎲${r} > 화제성 ${S.b} → 실패`, 0]); }
-    else if (d.kind === 'discover') { if (r === 6) { S.q += 4; S.res.aware += 2; S.discover = true; t.push([`${d.src} 🎲6 · 대발견 → 연기력 +4, 인지도 +2`, 4]); } else t.push([`${d.src} 🎲${r} · 대발견 실패`, 0]); }
-    else { const m = d.text.match(/(\d)~(\d) (작품성|화제성) \+(\d)/); if (m && r >= +m[1] && r <= +m[2]) { if (m[3] === '작품성') S.q += +m[4]; else S.b += +m[4]; t.push([`${d.src} 🎲${r} → ${m[3]} +${m[4]}`, +m[4]]); } else t.push([`${d.src} 🎲${r} · 실패`, 0]); } });
+  const p = P(G, S.pid), a = C(S.a), dmod = C(S.did).modifier;
+  const t = []; S.dice.forEach(d => {
+    if (d.kind === 'card') { const r = roll(G); d.r = r; const hit = diceClauses(d.text).find(c => c.t(r));
+      if (hit) { if (hit.grow) S.discover = true; t.push([`${d.src} 🎲${r}${hit.lbl ? ' · ' + hit.lbl : ''} → ${applyDiceFx(S, hit.fx)}`, 0]); } else t.push([`${d.src} 🎲${r} · 효과 없음`, 0]); return; }
+    if (d.kind === 'd10') { const r1 = roll(G), r2 = roll(G), sum = r1 + r2; d.r = `${r1}+${r2}`; const f = sum >= 10 ? 4 : sum >= 7 ? 2 : -1; S.res.fame += f;
+      t.push([`${d.src} 🎲${r1}+${r2}=${sum} → 명성 ${f > 0 ? '+' : ''}${f}`, 0]); return; }
+    const r0 = roll(G), cut = +((dmod.match(/바이럴팀 주사위 결과 [−-](\d)/) || [])[1] || 0), r = Math.max(1, r0 - cut);
+    const up = +(((a.effect || '').match(/바이럴팀 판정 성공 기준 \+(\d)/) || [])[1] || 0); d.r = cut ? `${r0}−${cut}` : r0;
+    const lab = `${d.src} 🎲${r0}${cut ? `−${cut}=${r}` : ''}`;
+    if (r === 6) { S.res.aware += 3; t.push([`${lab} · 6 → 인지도 +3`, 0]); }
+    else if (r <= S.b + up) { S.res.aware += 2; t.push([`${lab} ≤ 화제성 ${S.b}${up ? '+' + up : ''} → 인지도 +2`, 0]); }
+    else t.push([`${lab} > 화제성 ${S.b}${up ? '+' + up : ''} → 실패`, 0]); });
   S.steps[2] = { t, v: S.dice.map(d => d.r).join(' · ') }; S.rolled = true; G.undo = null;
   finishSteps(G, S); return ok();
 }
 function finishSteps(G, S) {
   const p = P(G, S.pid), w = C(S.w), a = C(S.a), d = C(S.did), base = BASE.find(x => x.category === d.category), mod = d.modifier;
-  let f = { fame: base.fame, aware: base.awareness, money: base.money };
-  if (/조건 작품성/.test(mod)) { const mf = mod.match(/명성 (작품성[^,]*)/), ma = mod.match(/인지도 ([+−-]?\d+)/), mm = mod.match(/자산 ([+−-]?\d+)/); if (mf) f.fame = mf[1]; if (ma) f.aware = ma[1]; if (mm) f.money = mm[1]; }
-  const mdn = mod.match(/자산은 \+(\d)로 감소/); if (mdn) f.money = '+' + mdn[1];
+  const f = { ...distInfo(S.did).f };
+  if (d.id === 'B04' && a.type === '아이돌') f.aware = '+1';
   const F = { fame: evalExpr(f.fame, S.q, S.b), aware: evalExpr(f.aware, S.q, S.b), money: evalExpr(f.money, S.q, S.b) };
   S.steps[3] = { t: [[`${d.name}(${d.category}) · 명성 ${f.fame}`, F.fame], [`인지도 ${f.aware}`, F.aware], [`자산 ${f.money}`, F.money]], v: `명성 ${F.fame} · 인지도 ${F.aware} · 자산 ${F.money}` };
   S.res.fame += F.fame; S.res.aware += F.aware; S.res.money += F.money;
@@ -254,13 +332,19 @@ function finishSteps(G, S) {
   let m;
   if ((m = mod.match(/([가-힣·]+) 작품 (명성|자산|인지도) \+(\d)/)) && m[1].split('·').includes(S.g)) add(`${d.name} · ${m[1]}`, parseRes(`${m[2]} +${m[3]}`));
   if ((m = mod.match(/화제성 (\d+) 이상이면 (.+)/)) && S.b >= +m[1]) add(`${d.name} · 화제성 ${m[1]} 이상`, parseRes(m[2]));
+  if ((m = mod.match(/(?<!조건 )작품성 (\d+) 이상이면 (.+)/)) && S.q >= +m[1]) add(`${d.name} · 작품성 ${m[1]} 이상`, parseRes(m[2]));
+  if (/만 방영 가능, 명성 \+(\d)/.test(mod)) add(`${d.name}`, { fame: +mod.match(/만 방영 가능, 명성 \+(\d)/)[1] });
+  if (d.id === 'B04' && (a.type === '연기파' || a.type === '예능인')) add(`${d.name} · ${a.type} 주연`, { aware: 1 });
+  if (hasCrew(p, 'C06') && (d.category === 'OTT' || d.category === '해외')) add('로케이션팀', { money: 2 });
+  if (hasCrew(p, 'C08')) add('홍보팀', { aware: 1 });
   if ((m = mod.match(/한류 태그 포함 시 (.+)/)) && S.hallyu) add(`${d.name} · 한류`, parseRes(m[1]));
   if ((m = mod.match(/(웹툰|소설|오리지널) 원작 작가면 (.+)/)) && w.origin === m[1]) add(`${d.name} · ${m[1]} 원작`, parseRes(m[2]));
   const tr = C(G.trend.now); if (tr) { const e = tr.trend_effect; let hit = false;
     if ((m = e.match(/^([가-힣]+) 방영 시 (.+)/)) && m[1] === S.g) hit = true;
     if (/^한류 태그 포함 방영 시/.test(e) && S.hallyu) hit = true;
     if (/^아이돌 주연 방영 시/.test(e) && a.type === '아이돌') hit = true;
-    if (hit) add(`트렌드 · ${tr.trend}`, parseRes(e.split('방영 시')[1])); }
+    if (hit) { const tr0 = parseRes(e.split('방영 시')[1]); add(`트렌드 · ${tr.trend}`, tr0);
+      if (/트렌드 보너스 \+1/.test(mod)) { const one = {}; Object.keys(tr0).forEach(k => (one[k] = 1)); add(`${d.name} · 트렌드 +1`, one); } } }
   [w, a].forEach(x => { const e = x.effect || '';
     if ((m = e.match(/방영할 때마다 (.+)/))) add(`${x.name}`, parseRes(m[1]));
     else if ((m = e.match(/^방영 시 (인지도 \+\d)/))) add(`${x.name}`, parseRes(m[1]));
@@ -274,7 +358,7 @@ function finishSteps(G, S) {
     const unk = okv === null; if (unk) { okv = true; S.notes.push(`투자 조건 "${c}" 자동 판정 불가 → 달성 처리`); }
     S.inv = { id: v.id, ok: okv };
     if (okv) { const r = parseRes(v.success_bonus); for (const k in r) S.res[k] += r[k]; S.steps[5] = { t: [[`${v.name} · ${c} → 달성${unk ? ' (수동 확인)' : ''}`, 0], [`보너스 ${v.success_bonus}`, 0]], v: '달성' }; }
-    else { S.res.fame += RULES.investFail; p.invFails++; S.steps[5] = { t: [[`${v.name} · ${c} → 실패`, 0], [`명성 ${RULES.investFail}`, 0]], v: '실패' }; }
+    else { const pen = hasCrew(p, 'C12') ? -1 : RULES.investFail; S.res.fame += pen; p.invFails++; S.steps[5] = { t: [[`${v.name} · ${c} → 실패`, 0], [`명성 ${pen}${hasCrew(p, 'C12') ? ' (재무팀)' : ''}`, 0]], v: '실패' }; }
   } else S.steps[5] = { t: [['투자 계약 없음', 0]], v: '—' };
   // 7 resources + tracks (computed now, applied on finish)
   S.ind.sched = 1; S.ind.kc = (S.hallyu ? RULES.kcPerHallyu : 0) + (S.hallyu && d.category === '해외' ? RULES.kcBonusOverseas : 0);
@@ -283,7 +367,7 @@ function finishSteps(G, S) {
 }
 function settleFinish(G, keep) {
   const S = G.pending; if (!S || !S.rolled) return err('정산 미완료'); const p = P(G, S.pid), d = C(S.did), a = C(S.a), w = C(S.w);
-  const workFame = S.res.fame; p.fame += workFame; p.src.work += workFame; p.money += S.res.money; p.aware += S.res.aware;
+  const workFame = S.res.fame, a0 = p.aware; p.fame += workFame; p.src.work += workFame; p.money += S.res.money; p.aware = Math.max(0, p.aware + S.res.aware); awareUp(G, p, a0);
   const gs = pushTrack(G, p, 'sched', S.ind.sched), gk = pushTrack(G, p, 'kc', S.ind.kc);
   if (S.inv) p.inv = null, discard(G, S.inv.id);
   // growth
@@ -292,6 +376,7 @@ function settleFinish(G, keep) {
   let kept = null; if (keep === 'writer') { kept = w.id; discard(G, aId !== a.id ? null : a.id); } else if (keep === 'actor') { kept = aId; discard(G, w.id); } else { discard(G, w.id); if (!grown) discard(G, a.id); }
   if (p.excl && kept) discard(G, p.excl);
   if (kept) p.excl = kept;
+  p.exclFree = kept && ((keep === 'writer' && /재계약비 0/.test(d.modifier)) || (keep === 'actor' && /재계약비 0/.test(a.effect || ''))) ? kept : null;
   p.prep = { writer: null, actor: null };
   p.rec.push(S.g); G.airedThisRound = true;
   S.steps[7] = { t: [[kept ? `전속 · ${C(kept).name}` : '전속 없음', 0], grown ? [`성장 · ${a.name} → ${C(aId).title}`, 0] : null].filter(Boolean), v: 'done' };
@@ -300,6 +385,7 @@ function settleFinish(G, keep) {
   if (S.notes.length) log(G, 'sys', '정산 메모 · ' + S.notes.join(' / '));
   G.airings.push({ game: G.gameId, round: G.round, player: p.name, dir: p.dir, writer: w.id, actor: a.id, dist: d.id, genre: S.g, quality: S.q, buzz: S.b, fame: workFame + gs + gk, money: S.res.money, aware: S.res.aware, trend: G.trend.now, crews: p.crews.join('|'), invest: S.inv ? (S.inv.ok ? 'success' : 'fail') : '', dice: S.dice.map(x => x.r).join('|') });
   G.pending = null; G.phase = 'Action'; G.undo = null;
+  if (hasCrew(p, 'C14')) { G.bonus = { pid: p.id, type: 'C14' }; if (bonusChoices(G).length) return ok({ bonus: true }); G.bonus = null; log(G, p.id, '시즌2 기획팀 · 계약 가능한 작가 없음'); }
   return advance(G);
 }
 
@@ -315,7 +401,8 @@ function cleanup(G) {
 }
 function finale(G) {
   G.phase = 'Finale';
-  G.players.forEach(p => { if (p.inv) { p.fame += RULES.investFail; p.src.end += RULES.investFail; p.invFails++; log(G, p.id, `종료 · 투자 ${C(p.inv).name} 미이행 → 명성 ${RULES.investFail}`); p.inv = null; } });
+  G.players.forEach(p => { if (p.inv) { const pen = hasCrew(p, 'C12') ? -1 : RULES.investFail; p.fame += pen; p.src.end += pen; p.invFails++; log(G, p.id, `종료 · 투자 ${C(p.inv).name} 미이행 → 명성 ${pen}`); p.inv = null; }
+    if (hasCrew(p, 'C17')) { const n = 2 + G.airings.filter(x => x.player === p.name && x.quality >= 9).length; p.fame += n; p.src.end += n; log(G, p.id, `편집팀 · 종료 명성 +${n}`); } });
   log(G, 'sys', '공개 목표·시상식·종료 효과는 이번 목업 범위 밖 (0점 처리)');
   G.phase = 'Result'; G.over = true; log(G, 'sys', '게임 종료');
   return ok({ over: true });
@@ -332,4 +419,4 @@ function exportCSV(G) {
   };
 }
 
-if (typeof module !== 'undefined') module.exports = { RULES, newGame, loadDB, pickTrend, place, slotState, placeCost, settleRoll, settleFinish, undo, exportCSV, cur, P, C, BASE: () => BASE, distCond, previewQuality, evalExpr };
+if (typeof module !== 'undefined') module.exports = { distInfo, freeActions, useFree, bonusChoices, bonusWriter, diceClauses, RULES, newGame, loadDB, pickTrend, place, slotState, placeCost, settleRoll, settleFinish, undo, exportCSV, cur, P, C, BASE: () => BASE, distCond, previewQuality, evalExpr };
