@@ -1,6 +1,6 @@
 /* FILM MAKING mockup — mobile UI. Same rules.js / bot.js / save slot as desktop; only the view differs.
    Layout: fixed top bar · 5 pages you swipe sideways (scroll-snap) · tab dots at the bottom · bottom sheets for choices. */
-const SAVE_KEY = 'fm-mockup-v1_v1_6';
+const SAVE_KEY = 'fm-mockup-v1_v1_7';
 const PCOL = ['#3B6FD6', '#D64545', '#3C9D5D', '#E0B400', '#8E5BD6'];
 const PNAME = ['파랑', '빨강', '초록', '노랑', '보라'];
 const PAGES = ['행동', '내 패널', '진열', '상대', '로그'];
@@ -78,15 +78,15 @@ function gradeHTML(p) { const pr = previewRating(G, p), cut = RULES.gradeCut, rn
 
 function sponsorHTML(p) { const t = RULES.sponsorAt, got = (p.sponsors || []).length;
   const tiers = t.map((v, i) => `<span style="padding:3px 8px;border-radius:4px;font-size:12px;font-weight:800;${p.aware >= v ? 'background:#624267;color:#fff' : 'background:#ECE7DB;color:#8A8780'}">인지도 ${v} · ${i + 1}번째 칸</span>`).join(' ');
-  const mine = (p.sponsors || []).map(x => { const s = C(x.id); return `<div style="background:#fff;border:1.5px solid #624267;border-radius:6px;padding:8px 10px"><b>${esc(s.name)}</b> <span style="font-size:12px;color:#5C5A55">조건 충족 ${x.cnt}회 · 종료 예상 명성 +${spEnd(G, p, x)}</span><div style="font-size:12px">${esc(s.effect)}</div></div>`; }).join('') || '<p style="font-size:13px;color:#5C5A55;margin:0">아직 계약한 스폰서가 없습니다.</p>';
+  const mine = (p.sponsors || []).map(x => { const s = C(x.id); return `<div style="background:#fff;border:1.5px solid #624267;border-radius:6px;padding:8px 10px"><b>${esc(s.name)}</b> <span style="font-size:12px;color:#5C5A55">조건 충족 ${x.cnt}회 · 종료 예상 명성 +${Math.max(RULES.endBonus.spMin || 0, spEnd(G, p, x))}</span><div style="font-size:12px">${esc(s.effect)}</div></div>`; }).join('') || '<p style="font-size:13px;color:#5C5A55;margin:0">아직 계약한 스폰서가 없습니다.</p>';
   const mk = (G.market.sponsor || []).filter(Boolean).map(id => `<div style="font-size:12px;padding:3px 0"><b>${esc(C(id).name)}</b> · ${esc(C(id).effect)}</div>`).join('');
   return `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${tiers}</div><div style="display:grid;gap:6px;margin-bottom:8px">${mine}</div><div style="font-size:12px;color:#5C5A55;margin-bottom:2px">공개된 스폰서 (인지도 구간에 닿으면 1장 고름)</div>${mk}
     <div style="font-size:12px;color:#5C5A55;margin-top:8px">인지도 소모 · 홍보 칸에서 ${RULES.awareSpend.map(A => `${A.name}(−${A.cost}: ${A.text})`).join(' · ')}</div>`; }
 function objHTML(p) { const E = RULES.endBonus;
   const ob = (G.objectives || []).map(o => { const fn = OBJ_MET[o], rows = G.players.map(x => ({ x, v: fn ? fn(x, G) : 0 })).sort((a, c) => c.v - a.v), me = rows.findIndex(r => r.x.id === p.id);
     return `<div style="background:#fff;border:1.5px solid #132454;border-radius:6px;padding:8px 10px"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(C(o).name)}</b><span style="font-size:12px">1위 +10 · 2위 +6 · 3위 +3</span></div><div style="font-size:12px;color:#5C5A55">${esc(C(o).criterion)} · 중간 시상식 때 절반 점수</div><div style="font-size:12px;margin-top:4px">${rows.map(r => `<span style="margin-right:8px;${r.x.id === p.id ? 'font-weight:800' : ''}">${esc(r.x.name)} ${r.v}</span>`).join('')}</div><div style="font-size:12px;color:#624267;font-weight:700">내 순위 ${me + 1}위</div></div>`; }).join('');
-  const lv3 = Object.keys(DEPTS).filter(id => lvl(p, DEPTS[id].key) >= 3).length, ms = Object.values(p.career || {}).filter(k => k >= 5).length, ex = [p.excl, p.excl2].filter(Boolean), gr = ex.filter(x => C(x).deck === 'growth').length, spn = (p.sponsors || []).reduce((t, x) => t + spEnd(G, p, x), 0);
-  const end = [[`남은 자산 ${E.moneyPer}당 +1`, Math.floor(p.money / E.moneyPer)], [`부서 Lv3 1개당 +${E.deptLv3}`, lv3 * E.deptLv3], [`장르 거장 1개당 +${E.master}`, ms * E.master], [`전속 보유 1장당 +${E.excl}`, ex.length * E.excl], [`성장 배우 보유 +${E.grown}`, gr * E.grown], ['스폰서 종료 보너스', spn]];
+  const lv3 = Object.keys(DEPTS).filter(id => lvl(p, DEPTS[id].key) >= 3).length, ms = Object.values(p.career || {}).filter(k => k >= 5).length, ex = [p.excl, p.excl2].filter(Boolean), gr = ex.filter(x => C(x).deck === 'growth').length, spn = (p.sponsors || []).reduce((t, x) => t + Math.max(E.spMin || 0, spEnd(G, p, x)), 0);
+  const end = [[`남은 자산 ${E.moneyPer}당 +1 (최대 ${E.moneyMax})`, Math.min(E.moneyMax, Math.floor(p.money / E.moneyPer))], [`부서 Lv3 1개당 +${E.deptLv3}`, lv3 * E.deptLv3], [`장르 거장 1개당 +${E.master}`, ms * E.master], [`전속 보유 1장당 +${E.excl}`, ex.length * E.excl], [`성장 배우 보유 +${E.grown}`, gr * E.grown], ['스폰서 종료 보너스', spn]];
   return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-bottom:10px">${ob}</div><div style="background:#fff;border:1px solid #D6CFBE;border-radius:6px;padding:8px 10px"><b style="font-size:14px">종료 보너스 · 지금 끝나면</b> <b style="color:#624267">+${end.reduce((t, x) => t + x[1], 0)}</b><div style="display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:12.5px;margin-top:4px">${end.map(([t, v]) => `<span>${t}</span><b>+${v}</b>`).join('')}</div></div>`; }
 function growthHTML(p) {
   const car = p.career || {}, gs = Object.keys(GENRE), st = RULES.stages;

@@ -21,7 +21,7 @@ const RULES = {
   lengths: { short: { mult: 2.2, rounds: 18, label: '짧게' }, std: { mult: 3.3, rounds: 24, label: '표준' }, long: { mult: 4.2, rounds: 30, label: '길게' } },
   dirImpl: ['D01', 'D02', 'D03', 'D04', 'D05', 'D06', 'D07', 'D08', 'D09', 'D10', 'D11', 'D12'],   // directors whose ability is coded
   dice: 6,
-  version: 'v1.6',
+  version: 'v1.7',
   // v1.1 · 시청률 등급표 — 명성 f / 자산 m / 인지도 a for grades C B A S SS
   gradeCut: [8, 13, 18, 23],
   gradeTab: {
@@ -39,7 +39,7 @@ const RULES = {
   ],
   achFixed: [], achRandom: 4,
   objPts: { mid: [5, 3, 2], end: [10, 6, 3] },
-  endBonus: { moneyPer: 4, deptLv3: 3, master: 3, excl: 2, grown: 2 },
+  endBonus: { moneyPer: 6, moneyMax: 5, deptLv3: 1, master: 3, excl: 2, grown: 2, spMin: 1 },
   dirDept: { D03: 'prod', D04: 'plan', D06: 'promo', D09: 'cast', D12: 'cast' },
   sponsorAt: [8, 14, 20],
   awareSpend: [
@@ -104,9 +104,9 @@ const SPONSORS = [
   { id: 'P07', name: '주류 브랜드', k: 'genre', genres: ['스릴러', '범죄'], m: 3, e: 'per2', f: 2, title: '스릴러·범죄', effect: '스릴러·범죄 방영마다 자산 +3 · 종료 때 해당 방영 2편당 명성 +2' },
   { id: 'P08', name: '관광공사', k: 'genre', genres: ['사극'], m: 3, e: 'per2', f: 2, title: '사극', effect: '사극 방영마다 자산 +3 · 종료 때 해당 방영 2편당 명성 +2' },
   { id: 'P09', name: '테크 기업', k: 'genre', genres: ['판타지'], m: 3, e: 'per2', f: 2, title: '판타지', effect: '판타지 방영마다 자산 +3 · 종료 때 해당 방영 2편당 명성 +2' },
-  { id: 'P10', name: '명품 하우스', k: 'sgrade', m: 4, e: 'per1', f: 3, title: 'S등급+', effect: 'S등급 이상 방영마다 자산 +4 · 종료 때 해당 방영 1편당 명성 +3' },
+  { id: 'P10', name: '명품 하우스', k: 'sgrade', m: 4, e: 'per1', f: 2, title: 'S등급+', effect: 'S등급 이상 방영마다 자산 +4 · 종료 때 해당 방영 1편당 명성 +2' },
   { id: 'P11', name: '통신사', k: 'any', a: 1, e: 'aware5', f: 1, title: '모든 방영', effect: '모든 방영마다 인지도 +1 · 종료 때 최종 인지도 5당 명성 +1' },
-  { id: 'P12', name: '문화 재단', k: 'none', e: 'flat', f: 7, title: '후원', effect: '방영 보상 없음 · 종료 때 명성 +7' },
+  { id: 'P12', name: '문화 재단', k: 'none', e: 'flat', f: 4, title: '후원', effect: '방영 보상 없음 · 종료 때 명성 +4' },
 ].map(s => ({ ...s, deck: 'sponsor', kind: '스폰서' }));
 function spHit(s, S, d) { return s.k === 'any' || (s.k === 'genre' && s.genres.includes(S.g)) || (s.k === 'buzz8' && S.b >= 8) || (s.k === 'cat' && s.cats.includes(d.category)) || (s.k === 'sgrade' && S.grade >= 3); }
 function spEnd(G, p, x) { const s = C(x.id); return s.e === 'per2' ? Math.floor(x.cnt / 2) * s.f : s.e === 'per1' ? x.cnt * s.f : s.e === 'if3' ? (x.cnt >= 3 ? s.f : 0) : s.e === 'money5' ? Math.floor(p.money / 5) : s.e === 'aware5' ? Math.floor(p.aware / 5) : s.f; }
@@ -669,12 +669,12 @@ function finale(G) {
   G.players.forEach(p => { if (p.inv) { const pen = hasCrew(p, 'C12') ? -1 : RULES.investFail; p.fame += pen; p.src.end += pen; p.invFails++; log(G, p.id, `종료 · 투자 ${C(p.inv).name} 미이행 → 명성 ${pen}`); p.inv = null; }
     if (hasCrew(p, 'C17')) { const n = 2 + G.airings.filter(x => x.player === p.name && x.quality >= 9).length; p.fame += n; p.src.end += n; log(G, p.id, `편집팀 · 종료 명성 +${n}`); } });
   const E = RULES.endBonus; G.players.forEach(p => { const add = (n, t) => { if (!n) return; p.fame += n; p.src.end += n; log(G, p.id, `종료 · ${t} → 명성 +${n}`); };
-    add(Math.floor(p.money / E.moneyPer), `남은 자산 ${p.money}`);
+    add(Math.min(E.moneyMax, Math.floor(p.money / E.moneyPer)), `남은 자산 ${p.money}`);
     add(Object.keys(DEPTS).filter(id => lvl(p, DEPTS[id].key) >= 3).length * E.deptLv3, '부서 Lv3');
     add(Object.values(p.career || {}).filter(k => k >= 5).length * E.master, '장르 거장');
     add(Math.min(1, [p.excl, p.excl2].filter(Boolean).length) * E.excl, '전속 보유');
     add([p.excl, p.excl2].filter(x => x && C(x).deck === 'growth').length * E.grown, '성장 배우 보유');
-    (p.sponsors || []).forEach(x => add(spEnd(G, p, x), `스폰서 ${C(x.id).name}`)); });
+    (p.sponsors || []).forEach(x => add(Math.max(E.spMin, spEnd(G, p, x)), `스폰서 ${C(x.id).name}`)); });
   ceremony(G, '최종', true);
   G.phase = 'Result'; G.over = true; log(G, 'sys', '게임 종료');
   return ok({ over: true });
