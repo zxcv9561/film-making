@@ -346,3 +346,12 @@ body.m .results svg{width:100%;height:auto}
 /* portrait → ask to rotate */
 @media (orientation:portrait){ body.m #rot{display:flex;position:fixed;inset:0;z-index:999;background:var(--ink);color:#fff;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-family:var(--sans)} body.m #rot b{font-size:54px;display:block;animation:rotp 1.8s ease-in-out infinite} body.m #rot span{font-size:17px;font-weight:700} }
 @keyframes rotp{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(90deg)}}
+
+
+/* v1.10 · player sheet rows — row 1: prep/excl fixed, dept list takes the rest · row 2: 투자 계약 fixed, track + record share the rest */
+.pp .rt>.line:first-child>.box{flex-shrink:0}
+.pp .rt>.line:first-child>.box:last-child{flex:1 1 0;min-width:0}
+.pp .rt>.line:nth-child(2)>.box:first-child{flex-shrink:0}
+.pp .rt>.line:nth-child(2)>.aw,.pp .rt>.line:nth-child(2)>.box:last-child{flex:1 1 0;min-width:0;overflow:hidden}
+.pp .rt>.line:nth-child(2) .cells,.pp .rt>.line:nth-child(2) .mk,.pp .rt>.line:nth-child(2) .rec{display:flex;gap:2px}
+.pp .rt>.line:nth-child(2) .cells>*,.pp .rt>.line:nth-child(2) .mk>*,.pp .rt>.line:nth-child(2) .rec>*{flex:1 1 0;min-width:0}
