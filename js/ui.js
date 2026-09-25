@@ -1,5 +1,5 @@
 /* FILM MAKING mockup — UI layer. Reads/writes G only through rules.js functions. */
-const SAVE_KEY = 'fm-mockup-v1_v1_7';
+const SAVE_KEY = 'fm-mockup-v1_v1_10';
 const PCOL = ['#3B6FD6', '#D64545', '#3C9D5D', '#E0B400', '#8E5BD6'];
 const PNAME = ['파랑', '빨강', '초록', '노랑', '보라'];
 let J = null, G = null;
@@ -68,7 +68,7 @@ function renderGame() {
   $('trend').innerHTML = trBox(tn, 'now', '이번 라운드') + trBox(tx, 'next', '다음 라운드');
   const grp = (t, k, cols, note) => `<div class="mg"><div class="hd"><b>${t}</b><span class="lab">${note}</span></div><div class="row${cols}">${G.market[k].map(tile).join('')}</div></div>`;
   $('market').innerHTML = grp('배우', 'actor', 4, `덱 ${G.decks.actor.draw.length}`) + grp('작가', 'writer', 4, `덱 ${G.decks.writer.draw.length}`) +
-    grp('스타', 'star', 3, p.aware >= RULES.starUnlock ? `인지도 ${p.aware} · 해금` : `🔒 인지도 ${RULES.starUnlock} 필요`) + grp('투자사', 'investor', 3, `덱 ${G.decks.investor.draw.length}`) + grp('제작 부서', 'crew', 5, `Lv3까지`);
+    grp('스타', 'star', 3, p.aware >= RULES.starUnlock ? `인지도 ${p.aware} · 해금` : `🔒 인지도 ${RULES.starUnlock} 필요`) + grp('투자사', 'investor', 6, `소액 · 중형 · 대형 · 2장씩`) + grp('제작 부서', 'crew', 5, `Lv3까지`);
   const b = G.board;
   const dsHTML = G.dists.map(did => { const d = C(did); const di = distInfo(did), f = { condition: di.cond, fame: di.f.fame, awareness: di.f.aware, money: di.f.money };
     return `<div class="ds"><div class="dh">${DIST_ICON[d.category] || ''}<div class="tx"><b>${esc(d.name)}</b><span>${esc(d.category)} · ${esc(d.concept)}</span></div></div>
@@ -103,7 +103,7 @@ function renderGame() {
         <div class="dirm"><span class="lab" style="color:#999">DIRECTOR · ${d.id}</span><div class="cn">${esc(d.concept)}</div><div class="nm">${esc(d.name)}</div><div class="ab">${esc(d.ability)}</div>${dirTag(p)}</div>
         <div class="res"><div class="r"><span class="k">${I.money}자산</span><span class="v" style="color:var(--money)">${p.money}</span></div><div class="r"><span class="k">${I.fame}명성</span><span class="v">${p.fame}</span></div><div class="r"><span class="k">${I.aware}인지도</span><span class="v" style="color:var(--aware)">${p.aware}</span></div></div>
         <div class="rt">
-          <div class="line">${box('준비 칸 · 작가 / 배우', [p.prep.writer, p.prep.actor], 2)}${p.dir === 'D12' ? box('준비 칸 2 · 멀티 프로젝트', [(p.prep2 || {}).writer, (p.prep2 || {}).actor], 2) : ''}${p.excl2 ? box('전속 2칸 · 시즌제', [p.excl, p.excl2], 2) : box('전속 1칸', [p.excl], 1)}<div class="box"><span class="lab">제작 부서</span><div style="display:flex;flex-direction:column;gap:2px;font-size:13px;margin-top:4px">${Object.keys(DEPTS).map(id => `<span><b>${DEPTS[id].name}</b> Lv${lvl(p, DEPTS[id].key)}</span>`).join('')}</div></div></div>
+          <div class="line">${box('준비 칸 · 작가 / 배우', [p.prep.writer, p.prep.actor], 2)}${false ? box('준비 칸 2 · 멀티 프로젝트', [(p.prep2 || {}).writer, (p.prep2 || {}).actor], 2) : ''}${p.excl2 ? box('전속 2칸 · 시즌제', [p.excl, p.excl2], 2) : box('전속 1칸', [p.excl], 1)}<div class="box"><span class="lab">제작 부서</span><div style="display:flex;flex-direction:column;gap:2px;font-size:13px;margin-top:4px">${Object.keys(DEPTS).map(id => `<span><b>${DEPTS[id].name}</b> Lv${lvl(p, DEPTS[id].key)}</span>`).join('')}</div></div></div>
           <div class="line" style="align-items:flex-end;gap:18px">${box('투자 계약', [p.inv], 1)}
             <div class="aw"><span class="lab">인지도 트랙 · ${p.aware}</span><div class="cells">${Array.from({ length: 10 }, (_, i) => `<div class="c ${i < p.aware ? 'f' : ''}"></div>`).join('')}</div><div class="mk">${Array.from({ length: 10 }, (_, i) => `<span>${awMarks[i + 1] || ''}</span>`).join('')}</div></div>
             <div class="box"><span class="lab">방영 기록 · ${p.rec.length}</span><div class="rec">${Array.from({ length: 8 }, (_, i) => p.rec[i] ? `<div class="rc f" style="background:var(${GENRE[p.rec[i]] || '--g-thriller'})">${p.rec[i]}</div>` : `<div class="rc">${i + 1}</div>`).join('')}</div></div>
@@ -162,10 +162,20 @@ function sponsorHTML(p) { const t = RULES.sponsorAt, got = (p.sponsors || []).le
     <div style="font-size:12px;color:#5C5A55;margin-top:8px">인지도 소모 · 홍보 칸에서 ${RULES.awareSpend.map(A => `${A.name}(−${A.cost}: ${A.text})`).join(' · ')}</div>`; }
 function objHTML(p) { const E = RULES.endBonus;
   const ob = (G.objectives || []).map(o => { const fn = OBJ_MET[o], rows = G.players.map(x => ({ x, v: fn ? fn(x, G) : 0 })).sort((a, c) => c.v - a.v), me = rows.findIndex(r => r.x.id === p.id);
-    return `<div style="background:#fff;border:1.5px solid #132454;border-radius:6px;padding:8px 10px"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(C(o).name)}</b><span style="font-size:12px">1위 +10 · 2위 +6 · 3위 +3</span></div><div style="font-size:12px;color:#5C5A55">${esc(C(o).criterion)} · 중간 시상식 때 절반 점수</div><div style="font-size:12px;margin-top:4px">${rows.map(r => `<span style="margin-right:8px;${r.x.id === p.id ? 'font-weight:800' : ''}">${esc(r.x.name)} ${r.v}</span>`).join('')}</div><div style="font-size:12px;color:#624267;font-weight:700">내 순위 ${me + 1}위</div></div>`; }).join('');
+    return `<div style="background:#fff;border:1.5px solid #132454;border-radius:6px;padding:8px 10px"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(C(o).name)}</b><span style="font-size:12px">1위 +${(RULES.objPtsByLen[G.len] || RULES.objPts).end[0]} · 2위 +${(RULES.objPtsByLen[G.len] || RULES.objPts).end[1]} · 3위 +${(RULES.objPtsByLen[G.len] || RULES.objPts).end[2]}</span></div><div style="font-size:12px;color:#5C5A55">${esc(C(o).criterion)} · 중간 시상식 때 절반 점수</div><div style="font-size:12px;margin-top:4px">${rows.map(r => `<span style="margin-right:8px;${r.x.id === p.id ? 'font-weight:800' : ''}">${esc(r.x.name)} ${r.v}</span>`).join('')}</div><div style="font-size:12px;color:#624267;font-weight:700">내 순위 ${me + 1}위</div></div>`; }).join('');
   const lv3 = Object.keys(DEPTS).filter(id => lvl(p, DEPTS[id].key) >= 3).length, ms = Object.values(p.career || {}).filter(k => k >= 5).length, ex = [p.excl, p.excl2].filter(Boolean), gr = ex.filter(x => C(x).deck === 'growth').length, spn = (p.sponsors || []).reduce((t, x) => t + Math.max(E.spMin || 0, spEnd(G, p, x)), 0);
   const end = [[`남은 자산 ${E.moneyPer}당 +1 (최대 ${E.moneyMax})`, Math.min(E.moneyMax, Math.floor(p.money / E.moneyPer))], [`부서 Lv3 1개당 +${E.deptLv3}`, lv3 * E.deptLv3], [`장르 거장 1개당 +${E.master}`, ms * E.master], [`전속 보유 1장당 +${E.excl}`, ex.length * E.excl], [`성장 배우 보유 +${E.grown}`, gr * E.grown], ['스폰서 종료 보너스', spn]];
   return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-bottom:10px">${ob}</div><div style="background:#fff;border:1px solid #D6CFBE;border-radius:6px;padding:8px 10px"><b style="font-size:14px">종료 보너스 · 지금 끝나면</b> <b style="color:#624267">+${end.reduce((t, x) => t + x[1], 0)}</b><div style="display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:12.5px;margin-top:4px">${end.map(([t, v]) => `<span>${t}</span><b>+${v}</b>`).join('')}</div></div>`; }
+
+function genreRuleHTML(p) { const car = p.career || {}, gs = ['로맨스', '범죄', '사극', '판타지', '코미디', '스릴러'], n = gs.filter(g => car[g]).length, V = RULES.variety;
+  const chips = gs.map(g => `<span style="padding:3px 9px;border-radius:4px;font-size:12.5px;font-weight:800;${car[g] ? 'background:#132454;color:#fff' : 'background:#ECE7DB;color:#8A8780'}">${g}</span>`).join(' ');
+  return `<ol style="margin:0 0 10px;padding-left:20px;font-size:13.5px;line-height:1.6">
+    <li>작품 장르는 <b>작가와 배우가 함께 가진 장르</b>입니다. 여러 개면 작가 카드에 먼저 적힌 장르 · 장르 일치 보너스를 받습니다.</li>
+    <li>배우가 <b>모든 장르</b>면 작가의 첫 장르, 작가가 <b>모든 장르</b>면 배우의 첫 장르로 정하고 일치로 봅니다.</li>
+    <li>둘 다 모든 장르면 원하는 장르를 고릅니다 (목업: 아직 덜 한 장르가 자동 선택).</li>
+    <li>함께 가진 장르가 없으면 작가의 첫 장르로 방영하고 일치 보너스는 없습니다 (D08 크로스오버는 예외).</li></ol>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${chips}</div>
+    <div style="font-size:13px">다장르 보너스 · 새 장르 첫 방영마다 명성 +${V.every} · 3장르째 +${V.at3} 추가 · 6장르 전부 +${V.at6} 추가 — 지금 <b>${n}/6</b>${n < 3 ? ` · ${3 - n}장르 더 → +${V.at3}` : n < 6 ? ` · ${6 - n}장르 더 → +${V.at6}` : ' · 달성'}</div>`; }
 function growthHTML(p) {
   const car = p.career || {}, gs = Object.keys(GENRE), st = RULES.stages;
   const stTxt = s => [s.q ? `작품성 +${Array.isArray(s.q) ? s.q[0] : s.q}` : '', s.b ? `화제성 +${s.b}` : '', s.fame ? `방영마다 명성 +${s.fame}` : ''].filter(Boolean).join(' · ');
@@ -194,7 +204,7 @@ function growthHTML(p) {
     <div style="background:#fff;border-radius:6px;padding:10px 12px;border:1px solid #D6CFBE"><b>인기상 · 인지도</b> <span style="font-size:12px">최종만 · 1위 +3 · 2위 +1</span><div style="font-size:13px;color:#5C5A55">현재 선두 · ${lead(x => x.aware)}</div></div></div>
     <p style="font-size:12px;color:#5C5A55;margin:6px 0 0">공동 순위는 한 단계 아래 상을 받습니다.</p>`;
   const sec = (t, sub, h) => `<div style="margin-bottom:18px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px"><b style="font-size:16px">${t}</b><span style="font-size:12px;color:#5C5A55">${sub}</span></div>${h}</div>`;
-  return sec('공개 목표 · 종료 보너스', '종료 때 순위로 명성 · 중간 시상식 때 절반', objHTML(p)) + sec('스폰서 · 인지도 활용', `인지도 ${p.aware} · 스폰서 ${(p.sponsors || []).length}/${RULES.sponsorAt.length}`, sponsorHTML(p)) + sec('시청률 등급', '작품성 + 화제성 → 등급 → 배급사 표 한 칸', gradeHTML(p)) + sec('제작 부서', '행동 보드의 부서 강화 칸 · 일꾼 1 + 자산 · Lv3까지', deptHTML(p)) + sec('장르 커리어 트랙', '그 장르로 방영할 때마다 1칸 · 노란 테두리가 단계 시작 칸', rows)
+  return sec('장르 결정 규칙 · 다장르 보너스', '작품 장르를 정하는 법', genreRuleHTML(p)) + sec('공개 목표 · 종료 보너스', '종료 때 순위로 명성 · 중간 시상식 때 절반', objHTML(p)) + sec('스폰서 · 인지도 활용', `인지도 ${p.aware} · 스폰서 ${(p.sponsors || []).length}/${RULES.sponsorAt.length}`, sponsorHTML(p)) + sec('시청률 등급', '작품성 + 화제성 → 등급 → 배급사 표 한 칸', gradeHTML(p) + `<div style="margin-top:8px;font-size:13px;background:#fff;border:1px solid #D6CFBE;border-radius:6px;padding:8px 10px"><b>제작비</b> · ${GRADES.map((g, k) => `${g} ${RULES.prodCost[k]}`).join(' · ')} — 방영 때 등급에 맞춰 냅니다. 자산이 모자라면 낼 수 있는 등급으로 내려갑니다 (재무팀 Lv2 −1 · 직접 집필 +2)</div>`) + sec('제작 부서', '행동 보드의 부서 강화 칸 · 일꾼 1 + 자산 · Lv3까지', deptHTML(p)) + sec('장르 커리어 트랙', '그 장르로 방영할 때마다 1칸 · 노란 테두리가 단계 시작 칸', rows)
     + sec('업적 · 먼저 달성하면 획득', `이번 게임 공개 ${(G.ach || []).length}장`, `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">${ach}</div>`)
     + sec('시상식', '명성 보너스', cer); }
 function modal(title, kick, body, foot) { return `<div class="scrim"><div class="modal"><div class="mh"><span class="lab">${kick}</span><h2>${title}</h2></div><div class="mb">${body}</div><div class="mf">${foot}</div></div></div>`; }
@@ -232,7 +242,7 @@ function settleModal() {
 function eligible(zone, idx) { const p = cur(G);
   if (zone === 'writer' || zone === 'actor') { const ids = G.market[zone].filter(id => id && C(id).cost + RULES.slotCost[idx] <= p.money); extraPicks(G, p, zone, idx).forEach(id => ids.includes(id) || ids.push(id)); if (p.excl && (C(p.excl).quality != null) === (zone === 'writer') && placeCost(G, p, zone, idx, p.excl, 'excl') <= p.money) ids.push(p.excl); return ids; }
   if (zone === 'star') return G.market.star.filter(id => id && C(id).required_fame <= p.aware && C(id).cost <= p.money);
-  if (zone === 'invest') return G.market.investor.filter(Boolean);
+  if (zone === 'invest') return G.market.investor.filter(x => x && invAllowed(G, p, x));
   if (zone === 'crew') return G.market.crew.filter(id => id && C(id).price <= p.money);
   return []; }
 function onSlot(zone, idx) {
@@ -251,7 +261,7 @@ function onTile(id) {
   if (zone === 'invest') { body = `<div class="brk"><span>투자금</span><b>자산 +${x.payout}</b><span>다음 작품 조건</span><b>${esc(x.next_drama_condition)}</b><span>달성</span><b>${esc(x.success_bonus)}</b><span>실패</span><b style="color:#C2410C">${esc(x.failure_penalty)}</b></div>`; }
   else if (zone === 'crew') { body = `<div class="brk"><span>가격</span><b>자산 −${x.price}</b><span>효과</span><b style="text-align:left;font-weight:600">${esc(x.effect)}</b><span class="tot">남는 자산</span><b class="tot">${p.money - x.price}</b></div>` + (p.crews.length >= 3 ? `<div><span class="lab">제작진 ${RULES.crewCap}칸이 꽉 찼습니다 · 내보낼 카드</span><div style="display:flex;gap:6px;margin-top:6px">${p.crews.map((c, i) => `<label class="optbtn" style="padding:8px 12px"><input type="radio" name="rep" value="${i}" ${i ? '' : 'checked'}> ${esc(C(c).name)}</label>`).join('')}</div></div>` : ''); }
   else { const cost = placeCost(G, p, zone, idx, id, from), kind = x.quality != null ? 'writer' : 'actor', out = p.prep[kind];
-    body = `<div class="brk"><span>계약비${from === 'excl' ? ' (전속 재기용)' : from === 'poach' ? ' (캐스팅 승부사 · 전속 빼앗기)' : ''}</span><b>${from === 'excl' ? 0 : x.cost}</b>${zone !== 'star' ? `<span>칸 비용</span><b>+${Math.max(0, cost - (from === 'excl' ? 0 : x.cost))}</b>` : ''}<span class="tot">총비용</span><b class="tot">자산 −${cost}</b><span>남는 자산</span><b>${p.money - cost}</b></div>${out ? `<div style="color:#C2410C;font-weight:700">준비 칸의 ${esc(C(out).name)}(${esc(C(out).title)})이 밀려나 버려집니다</div>` : ''}`; }
+    body = `<div class="brk"><span>계약비${from === 'excl' ? ' (전속 재기용 · 계약비 1/3)' : from === 'poach' ? ' (캐스팅 승부사 · 전속 빼앗기)' : ''}</span><b>${from === 'excl' ? (x.deck === 'growth' ? 0 : Math.floor(x.cost / 3)) : x.cost}</b>${zone !== 'star' ? `<span>칸 비용</span><b>+${Math.max(0, cost - (from === 'excl' ? (x.deck === 'growth' ? 0 : Math.floor(x.cost / 3)) : x.cost))}</b>` : ''}<span class="tot">총비용</span><b class="tot">자산 −${cost}</b><span>남는 자산</span><b>${p.money - cost}</b></div>${out ? `<div style="color:#C2410C;font-weight:700">준비 칸의 ${esc(C(out).name)}(${esc(C(out).title)})이 밀려나 버려집니다</div>` : ''}`; }
   UI.confirm = { zone, idx, choice };
   UI.modal = modal(`${esc(x.name)}${x.title ? ' · ' + esc(x.title) : ''}`, { writer: '작가 계약', actor: '배우 캐스팅', star: '대스타 계약', invest: '투자 유치', crew: '제작진 고용' }[zone] + ' · 확인', `<div style="display:flex;gap:22px;align-items:flex-start"><div>${fullCard(id)}</div><div style="display:flex;flex-direction:column;gap:12px;min-width:360px">${body}</div></div>`, '<button class="btn" data-act="close">취소</button><button class="btn pri" data-act="confirm">확정</button>');
   renderOverlay();

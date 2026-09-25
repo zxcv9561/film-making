@@ -35,7 +35,7 @@ function botStep(G) {
     if (opts.length) { opts.sort((x, y) => y.s - x.s); return place(G, 'air', opts[0].i, { boost: p.dir === 'D03' ? Math.max(0, Math.min(9, Math.floor((p.money - 3) / 3) * 3)) : 0 }); }
   }
   // 2. fill the missing half of the prep pair
-  const second = p.dir === 'D12' && p.prep.writer && p.prep.actor;   // 방영 못 하는 상태면 두 번째 세트 준비
+  const second = false;   // 방영 못 하는 상태면 두 번째 세트 준비
   for (const zone of ['writer', 'actor']) {
     if (p.prep[zone] && !(second && !(p.prep2 || {})[zone])) continue;
     const other = (second ? (p.prep2 || {}) : p.prep)[zone === 'writer' ? 'actor' : 'writer'], og = other ? C(other).genres : [];
@@ -56,7 +56,15 @@ function botStep(G) {
     const i = b.crew.findIndex((o, k) => can('crew', k));
     if (i >= 0) { const id = ORDER.find(id => deptCost(G, p, id) < 99 && deptCost(G, p, id) <= p.money - 1); if (id) return place(G, 'crew', i, { card: id }); } }
   // 3. investment
-  if (!p.inv) { const i = b.invest.findIndex((o, k) => can('invest', k)); if (i >= 0) { const id = G.market.investor.filter(Boolean).sort((x, y) => C(y).payout - C(x).payout)[0]; if (id) return place(G, 'invest', i, { card: id }); } }
+  if (!p.inv) { const i = b.invest.findIndex((o, k) => can('invest', k)); if (i >= 0) {
+    const mine = G.airings.filter(x => x.player === p.name), best = mine.length ? Math.max(...mine.slice(-3).map(x => GRADES.indexOf(x.grade))) : 1, mg = botMain(p);
+    const likely = c => c.split(' · ').every(part => { let mm; if ((mm = part.match(/^(B|A|S|SS)등급 이상$/))) return best >= GRADES.indexOf(mm[1]) && p.money >= RULES.prodCost[GRADES.indexOf(mm[1])];
+      if (/또는|^(로맨스|범죄|사극|판타지|코미디|스릴러)$/.test(part)) return !!mg && part.includes(mg); if ((mm = part.match(/^(.+) 배급사$/))) return mm[1].split('·').some(x => (p.cats || []).includes(x));
+      if ((mm = part.match(/^화제성 (\d+) 이상$/))) return best >= 3; if (/다음 라운드/.test(part)) return !!(p.prep.writer && p.prep.actor); return false; });
+    const sc = id => { const v = C(id), ok = likely(v.next_drama_condition), fail = +((v.failure_penalty || '').match(/[−-](\d+)/) || [0, 3])[1]; return ok ? v.payout + (v.tier || 1) * 1.5 : v.payout * 0.25 - fail * 1.2; };
+    const need = p.money < 9 || best >= 3;
+    const id = G.market.investor.filter(x => x && invAllowed(G, p, x)).sort((x, y) => sc(y) - sc(x))[0];
+    if (id && need && sc(id) > 2) return place(G, 'invest', i, { card: id }); } }
   // 4b. v1.4 · 인지도 소모 (넘치는 인지도 활용)
   if (p.aware >= 14) { const i = b.promo.findIndex((o, k) => can('promo', k)); if (i >= 0) return place(G, 'promo', i, { opt: p.money < 4 ? 3 : 2 }); }
   // 5. awareness

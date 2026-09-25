@@ -3,7 +3,7 @@
 const RULES = {
   workers: 3,
   startMoney: 5,
-  income: 2,
+  income: 3,
   sched: { 2: 9, 3: 11, 4: 12, 5: 13 },   // 편성표 length by player count
   kc:    { 2: 5, 3: 6, 4: 7, 5: 8 },      // K-콘텐츠 지수 length by player count
   eventCells: { sched: [4, 8], kc: [3] }, // display only (effects not implemented)
@@ -12,7 +12,7 @@ const RULES = {
   slotCost: [0, 1, 2],
   distSlots: 2,
   starUnlock: 8,
-  exclReuse: 'slotOnly',                 // re-contracting your exclusive card: pay slot cost only
+  exclReuse: 'thirdCost',                 // re-contracting your exclusive card: pay slot cost only
   indFame: 1, indEvery: 2,               // v1.2 · 명성 1 per 2 industry-track steps you push                            // 명성 per industry-track step you push
   kcPerHallyu: 1, kcBonusOverseas: 1,
   noAirSched: 1,                         // 편성표 +1 if nobody aired this round
@@ -21,25 +21,31 @@ const RULES = {
   lengths: { short: { mult: 2.2, rounds: 18, label: '짧게' }, std: { mult: 3.3, rounds: 24, label: '표준' }, long: { mult: 4.2, rounds: 30, label: '길게' } },
   dirImpl: ['D01', 'D02', 'D03', 'D04', 'D05', 'D06', 'D07', 'D08', 'D09', 'D10', 'D11', 'D12'],   // directors whose ability is coded
   dice: 6,
-  version: 'v1.7',
+  version: 'v1.10',
+  pScale: { 2: 0.7, 3: 0.85, 4: 1, 5: 1 },  // v1.10 · 인원수별 업계 지표 트랙 길이 보정
+  objPtsByLen: { short: { mid: [4, 2, 1], end: [7, 4, 2] } },
+  prodCost: [0, 0, 1, 3, 5],              // v1.9 · 등급 C B A S SS 제작비 (부족하면 낼 수 있는 등급으로)
+  invTier3: { aware: 12, finLv: 2 },
+  variety: { every: 1, at3: 3, at6: 8 },      // v1.8 · 다장르: 새 장르 첫 방영 +1 · 3장르 +3 · 6장르 전부 +8
+  growBonus: { fame: 3, money: 2 },
   // v1.1 · 시청률 등급표 — 명성 f / 자산 m / 인지도 a for grades C B A S SS
   gradeCut: [8, 13, 18, 23],
   gradeTab: {
-    지상파: { f: [1, 3, 7, 10, 13], m: [1, 1, 2, 2, 3], a: [0, 1, 1, 2, 2] },
-    케이블: { f: [1, 2, 5, 7, 9], m: [2, 3, 3, 4, 5], a: [1, 2, 2, 3, 3] },
-    OTT:   { f: [0, 1, 4, 6, 9], m: [3, 5, 7, 9, 11], a: [0, 1, 1, 2, 2] },
-    웹:    { f: [0, 1, 3, 4, 6], m: [1, 1, 2, 2, 3], a: [2, 3, 4, 5, 6] },
-    해외:  { f: [1, 2, 6, 9, 12], m: [2, 4, 5, 7, 9], a: [1, 1, 2, 3, 3] },
+    지상파: { f: [1, 3, 7, 10, 13], m: [1, 1, 3, 3, 5], a: [0, 1, 1, 2, 2] },
+    케이블: { f: [1, 2, 5, 7, 9], m: [2, 3, 4, 5, 7], a: [1, 2, 2, 3, 3] },
+    OTT:   { f: [0, 1, 4, 6, 9], m: [3, 5, 8, 10, 13], a: [0, 1, 1, 2, 2] },
+    웹:    { f: [0, 1, 3, 4, 6], m: [1, 1, 3, 3, 5], a: [2, 3, 4, 5, 6] },
+    해외:  { f: [1, 2, 6, 9, 12], m: [2, 4, 6, 8, 11], a: [1, 1, 2, 3, 3] },
   },
   // v1.2 · 장르 커리어 3단계 (그 장르로 이미 방영한 편수 k)
   stages: [
     { from: 1, name: '경력', q: [1, 1], b: 0, fame: 0 },   // 그 장르 1~2편 방영 후
     { from: 3, name: '전문', q: [2, 2], b: 1, fame: 1 },   // 3~4편
-    { from: 5, name: '거장', q: [3], b: 1, fame: 3 },      // 5편 이상
+    { from: 5, name: '거장', q: [3], b: 1, fame: 2 },      // 5편 이상
   ],
   achFixed: [], achRandom: 4,
   objPts: { mid: [5, 3, 2], end: [10, 6, 3] },
-  endBonus: { moneyPer: 6, moneyMax: 5, deptLv3: 1, master: 3, excl: 2, grown: 2, spMin: 1 },
+  endBonus: { moneyPer: 6, moneyMax: 5, deptLv3: 1, master: 3, excl: 2, grown: 4, spMin: 1 },
   dirDept: { D03: 'prod', D04: 'plan', D06: 'promo', D09: 'cast', D12: 'cast' },
   sponsorAt: [8, 14, 20],
   awareSpend: [
@@ -82,12 +88,12 @@ function roll(G) { if (G.dev && G.dev.dice) return G.dev.dice; return 1 + Math.f
 
 /* ── card db ── */
 let DB = null, BASE = null;
-function loadDB(J) { DB = {}; for (const k in J) if (Array.isArray(J[k])) J[k].forEach(x => x && x.id && (DB[x.id] = x)); BASE = J.distribution_base; Object.keys(DEPTS).forEach(id => { DB[id] = deptCard(id); }); SPONSORS.forEach(s => (DB[s.id] = s)); NEW_CREWS.forEach(c => { if (!J.crews.some(x => x.id === c.id)) J.crews.push({ ...c }); DB[c.id] = J.crews.find(x => x.id === c.id); }); applyPremium(); applyDirTextV12(); return J; }
+function loadDB(J) { DB = {}; for (const k in J) if (Array.isArray(J[k])) J[k].forEach(x => x && x.id && (DB[x.id] = x)); BASE = J.distribution_base; Object.keys(DEPTS).forEach(id => { DB[id] = deptCard(id); }); SPONSORS.forEach(s => (DB[s.id] = s)); NEW_CREWS.forEach(c => { if (!J.crews.some(x => x.id === c.id)) J.crews.push({ ...c }); DB[c.id] = J.crews.find(x => x.id === c.id); }); applyCardsV18(J); applyPremium(); applyDirTextV12(); return J; }
 /* v1.2 · 바뀐 감독 규칙 문구 (cards.json은 v1.0·v1.1과 공유하므로 여기서만 덮어씀) */
 /* ── v1.3 · 제작 부서 5개 × 3레벨 (제작진 카드 대체) ── */
 const DEPTS = {
-  CPLAN: { key: 'plan', name: '기획실', act: '작가 계약', lv: ['작가 계약 칸 비용 −1', '라운드 첫 작가 계약은 일꾼·칸 비용 없음', '작가 계약비 −1 · 전속 재기용 칸 비용 −1'], grant: [[], ['C19'], ['C16', 'C11']] },
-  CCAST: { key: 'cast', name: '캐스팅팀', act: '배우 캐스팅', lv: ['배우 계약비 −1', '라운드 첫 배우 계약은 일꾼·칸 비용 없음', '모든 작품 화제성 +1'], grant: [[], ['C20'], []] },
+  CPLAN: { key: 'plan', name: '기획실', act: '작가 계약', lv: ['작가 계약 칸 비용 −1', '라운드 첫 작가 계약은 일꾼·칸 비용 없음', '작가 계약비 −1 · 전속 재기용 칸 비용 −1 · 작가 전용 칸 (칸이 차 있어도 계약)'], grant: [[], ['C19'], ['C16', 'C11']] },
+  CCAST: { key: 'cast', name: '캐스팅팀', act: '배우 캐스팅', lv: ['배우 계약비 −1', '라운드 첫 배우 계약은 일꾼·칸 비용 없음 · 배우 전용 칸 (칸이 차 있어도 계약)', '모든 작품 화제성 +1 · 대스타 칸 +1 (라운드에 스타 2명까지)'], grant: [[], ['C20'], []] },
   CPROMO: { key: 'promo', name: '홍보팀', act: '홍보', lv: ['홍보 비용 −1', '방영마다 인지도 +1 · 인지도 구간 도달 시 자산 +2', '바이럴 주사위 획득 · 성공 기준 +1'], grant: [[], ['C08'], ['C07']] },
   CPROD: { key: 'prod', name: '제작본부', act: '방영', lv: ['모든 작품 작품성 +1', '장르 일치 보너스 +1 (2 → 3)', '매 라운드 일꾼 +1'], grant: [[], [], ['C22']] },
   CFIN: { key: 'fin', name: '재무팀', act: '투자 · 자금', lv: ['투자 유치 자산 +2 · 투자 실패 명성 −1로 완화', '라운드 수입 +1', '방영마다 자산 +2'], grant: [['C12'], [], []] },
@@ -113,7 +119,7 @@ function spEnd(G, p, x) { const s = C(x.id); return s.e === 'per2' ? Math.floor(
 function spTiers(p) { return RULES.sponsorAt.filter(t => p.aware >= t).length; }
 function sponsorDue(G, p) { return p && (p.spTier || 0) < spTiers(p) && G.market.sponsor && G.market.sponsor.some(Boolean); }
 function lvl(p, key) { return ((p && p.dept) || {})[key] || 0; }
-function deptCost(G, p, id) { const L = lvl(p, DEPTS[id].key); if (L >= 3) return 99; return Math.max(1, RULES.deptCost[L] - (p.dir === 'D12' ? 2 : 0) - (RULES.dirDept[p.dir] === DEPTS[id].key ? 2 : 0) - ((G && G.rmod && G.rmod.deptCut) || 0)); }
+function deptCost(G, p, id) { const L = lvl(p, DEPTS[id].key); if (L >= 3) return 99; return Math.max(1, RULES.deptCost[L] - (RULES.dirDept[p.dir] === DEPTS[id].key ? 2 : 0) - ((G && G.rmod && G.rmod.deptCut) || 0)); }
 function deptCard(id) { const d = DEPTS[id]; return { id, deck: 'dept', kind: '부서 강화', name: d.name, title: d.act,
   get price() { const v = DEPT_VIEW; return v ? deptCost(v.G, v.p, id) : RULES.deptCost[0]; },
   get effect() { const v = DEPT_VIEW, L = v ? lvl(v.p, d.key) : 0; return L >= 3 ? `Lv3 완료 · ${d.lv.join(' / ')}` : `Lv${L} → Lv${L + 1}: ${d.lv[L]}`; } }; }
@@ -128,16 +134,63 @@ const TREND_V12 = {
   T04: { issue: '특별 편성 주간', issue_effect: '이번 라운드 모든 플레이어 2편까지 방영 가능' },
   T18: { issue: '드라마 과잉 편성', issue_effect: '이번 라운드 케이블 배급사 칸 +1, 케이블로는 두 번째 방영 가능' },
 };
+const INV_V19 = {
+  I01: { tier: 1, name: '엔젤 투자 A', payout: 4, next_drama_condition: 'B등급 이상', success_bonus: '없음', failure_penalty: '명성 −1' },
+  I02: { tier: 1, name: '엔젤 투자 B', payout: 4, next_drama_condition: '로맨스 또는 코미디', success_bonus: '없음', failure_penalty: '명성 −1' },
+  I09: { tier: 1, name: '장르물 펀드', payout: 4, next_drama_condition: '범죄 또는 스릴러', success_bonus: '없음', failure_penalty: '명성 −1' },
+  I10: { tier: 1, name: '시대극·판타지 펀드', payout: 4, next_drama_condition: '사극 또는 판타지', success_bonus: '없음', failure_penalty: '명성 −1' },
+  I03: { tier: 2, name: '멜로·코미디 투자조합', payout: 8, next_drama_condition: '로맨스 또는 코미디 · A등급 이상', success_bonus: '명성 +2', failure_penalty: '명성 −3' },
+  I04: { tier: 2, name: '채널 제휴 펀드', payout: 8, next_drama_condition: '케이블·OTT 배급사', success_bonus: '명성 +2', failure_penalty: '명성 −3' },
+  I07: { tier: 2, name: '장르물 투자조합', payout: 8, next_drama_condition: '범죄 또는 스릴러 · A등급 이상', success_bonus: '명성 +2', failure_penalty: '명성 −3' },
+  I08: { tier: 2, name: '흥행 보증 펀드', payout: 8, next_drama_condition: 'A등급 이상', success_bonus: '명성 +2', failure_penalty: '명성 −3' },
+  I05: { tier: 3, name: '방송사 선투자', payout: 13, next_drama_condition: 'S등급 이상', success_bonus: '명성 +4, 자산 +2', failure_penalty: '명성 −5 · 받은 자산 절반 반환' },
+  I06: { tier: 3, name: 'OTT 오리지널 펀드', payout: 13, next_drama_condition: 'OTT·해외 배급사 · A등급 이상', success_bonus: '명성 +4, 자산 +2', failure_penalty: '명성 −5 · 받은 자산 절반 반환' },
+  I11: { tier: 3, name: '속전속결 캐피털', payout: 13, next_drama_condition: '다음 라운드가 끝나기 전에 방영 · A등급 이상', success_bonus: '명성 +4, 자산 +2', failure_penalty: '명성 −5 · 받은 자산 절반 반환' },
+  I12: { tier: 3, name: '명품 제작 펀드', payout: 13, next_drama_condition: '화제성 8 이상', success_bonus: '명성 +4, 자산 +2', failure_penalty: '명성 −5 · 받은 자산 절반 반환' },
+};
+const TIER_NAME = ['', '소액', '중형', '대형'];
+function invAllowed(G, p, id) { const v = C(id); if (!v || v.tier !== 3) return true; return p.aware >= RULES.invTier3.aware || lvl(p, 'fin') >= RULES.invTier3.finLv; }
+function invCondOk(G, p, S, w, a, d, c) { return c.split(' · ').every(part => { let m;
+  if ((m = part.match(/^(B|A|S|SS)등급 이상$/))) return S.grade >= GRADES.indexOf(m[1]);
+  if (part === '주연이 아이돌') return a.type === '아이돌'; if (/한류 태그 포함/.test(part)) return !!S.hallyu; if (part === '작가가 웹툰 원작') return w.origin === '웹툰';
+  if ((m = part.match(/^작품성 (\d+) 이상$/))) return S.q >= +m[1]; if ((m = part.match(/^화제성 (\d+) 이상$/))) return S.b >= +m[1];
+  if ((m = part.match(/^(.+) 배급사$/))) return m[1].split('·').includes(d.category);
+  if (/다음 라운드가 끝나기 전에 방영/.test(part)) return G.round <= (p.invR || 0) + 1;
+  if (/또는|^(로맨스|범죄|사극|판타지|코미디|스릴러)$/.test(part)) return part.split(' 또는 ').includes(S.g);
+  return true; }); }
+const CARD_V18 = {
+  W05: { effect: '제작본부 Lv1 이상이면 작품성 +1' }, W27: { effect: '제작본부 Lv1 이상이면 작품성 +1' }, A22: { effect: '제작본부 Lv1 이상이면 작품성 +1' }, A35: { effect: '제작본부 Lv1 이상이면 작품성 +1' },
+  W08: { effect: '제작본부 Lv2 이상이면 화제성 +1' }, A26: { effect: '제작본부 Lv2 이상이면 화제성 +2' },
+  A06: { effect: '홍보팀 Lv1 이상이면 화제성 +1' }, G02: { effect: '홍보팀 Lv1 이상이면 화제성 +2' }, A28: { effect: '홍보팀 Lv1 이상이면 화제성 +2' },
+  A16: { effect: '제작본부 Lv1 이상이면 작품성 +1' }, G12: { effect: '제작본부 Lv1 이상이면 작품성 +1' },
+  A05: { effect: '🎲 방영 시 주사위: 짝수 화제성 +2 / 홀수 화제성 −1. 바이럴 판정 성공 기준 +1 (홍보팀 Lv3)' },
+  A32: { effect: '바이럴 판정 자동 성공 (홍보팀 Lv3)' },
+  A43: { effect: '방영 시 가장 높은 부서 레벨만큼 화제성 +' },
+  W07: { effect: '웹 배급사로 방영 시 자산 +2' }, W30: { effect: '해외 배급사로 방영 시 명성 +1' }, A15: { effect: '웹 배급사로 방영 시 명성 +1' }, G11: { effect: '웹 배급사로 방영 시 명성 +1' },
+  A36: { effect: '케이블 배급사로 방영 시 명성 +1' }, A37: { effect: '지상파·케이블 배급사로 방영 시 자산 +1' }, A45: { effect: '해외 배급사로 방영 시 명성 +2' },
+  W19: { genres: ['범죄', '판타지'] }, A20: { genres: ['범죄', '판타지'] }, W24: { genres: ['스릴러', '사극'] },
+};
+const NEW_CARDS_V18 = [
+  { id: 'W31', name: '한서윤', signature_work: '《모든 계절의 이야기》', title: '장르 불문 스토리텔러', career: '중견', genres: ['모든 장르'], origin: '오리지널', hallyu: false, cost: 5, quality: 4, effect: '어떤 배우와도 장르 일치', deck: 'writer', flavor: '로맨스부터 스릴러까지, 장르를 가리지 않는 집필로 방송가의 해결사가 됐다.', quote: '이야기에 칸막이는 없어요.' },
+  { id: 'W32', name: '백도현', signature_work: '《여섯 개의 문》', title: '장르의 연금술사', career: '거장', genres: ['모든 장르'], origin: '오리지널', hallyu: true, cost: 7, quality: 5, effect: '어떤 배우와도 장르 일치', required_fame: 12, deck: 'star', flavor: '매 작품 장르를 바꾸면서도 흥행을 놓친 적 없는 거장.', quote: '장르는 옷일 뿐, 몸은 이야기입니다.' },
+  { id: 'A47', name: '류하온', title: '천의 얼굴', career: '중견', type: '일반', hallyu: false, genres: ['모든 장르'], cost: 5, acting: 3, buzz: 2, effect: '어떤 작가와도 장르 일치', deck: 'actor', flavor: '맡는 배역마다 다른 사람이 된다는 평을 듣는 연기파.', quote: '오늘은 누구로 살아볼까요.' },
+  { id: 'A48', name: '제이(정재이)', title: '글로벌 톱스타', career: '톱스타', type: '아이돌', hallyu: true, genres: ['모든 장르'], cost: 8, acting: 5, buzz: 4, effect: '어떤 작가와도 장르 일치', required_fame: 14, deck: 'star', flavor: '무대와 스크린을 넘나들며 세계 팬덤을 이끄는 톱스타.', quote: '장르요? 제가 나오면 그게 장르죠.' },
+];
+function applyCardsV18(J) {
+  NEW_CARDS_V18.forEach(c => { const arr = c.id[0] === 'W' ? J.writers : J.actors; if (!arr.some(x => x.id === c.id)) arr.push({ ...c }); DB[c.id] = arr.find(x => x.id === c.id); });
+  for (const id in CARD_V18) if (DB[id]) Object.assign(DB[id], CARD_V18[id]);
+  for (const id in INV_V19) if (DB[id]) Object.assign(DB[id], INV_V19[id], { contract_condition: INV_V19[id].tier === 3 ? `인지도 ${RULES.invTier3.aware} 이상 또는 재무팀 Lv${RULES.invTier3.finLv}` : '없음', name: `[${TIER_NAME[INV_V19[id].tier]}] ${INV_V19[id].name}` });
+  (J.actor_growth || []).forEach(g => { if (g.buffV18) return; g.acting += 1; g.buzz += 1; g.buffV18 = true; }); }
 function applyDirTextV12() { const T = {
-  D01: { ability: '일꾼 4개로 시작합니다.', restriction: '라운드 수입이 없습니다 (기본 +2).' },
-  D02: { ability: '작가 없이 방영할 수 있습니다. 감독이 직접 집필하며 작품성은 2에서 시작해 직접 집필 2편마다 +1 (최대 4). 장르는 배우 장르 중 1개를 따릅니다.', restriction: '직접 집필 작품은 원작·작가 효과가 없고 전속으로 남길 수 없습니다' },
+  D01: { ability: '일꾼 4개로 시작합니다.', restriction: '라운드 수입이 1 적고 (기본 +3 → +2), 시작 자산 −3.' },
+  D02: { ability: '작가 없이 방영할 수 있습니다. 감독이 직접 집필하며 작품성은 2에서 시작해 직접 집필 2편마다 +1 (최대 4). 장르는 배우 장르 중 1개를 따릅니다. 직접 집필 작품은 제작비 +2.', restriction: '직접 집필 작품은 원작·작가 효과가 없고 전속으로 남길 수 없습니다' },
   D03: { ability: '방영 때 자산을 추가로 투입할 수 있습니다. 자산 3당 작품성 +2 · 화제성 +1 (최대 자산 9). 자산 3 이상 투입한 작품은 명성 +2. 부서 특전 · 제작본부 강화 −2, Lv3이면 자산을 투입한 작품 등급 +1.' },
   D04: { ability: '작가와 배우 계약비 합이 6 이하인 작품은 명성 +5 · 자산 +3. 부서 특전 · 기획실 강화 −2, Lv3이면 명성 +7.' },
   D06: { ability: '트렌드를 고를 때 4장 중에서 고릅니다. 내 작품 장르가 유행 장르면 작품성 +3, 트렌드 보너스도 +3 더 붙습니다. 유행 장르가 아니어도 작품성 +1 (시장 감각). 부서 특전 · 홍보팀 강화 −2, Lv3이면 트렌드 보너스 +5.' },
-  D07: { ability: '방영 후 자산 3을 내면 작가와 배우를 모두 전속으로 남길 수 있습니다 (전속 2칸). 다음 작품이 같은 장르일 때만 유지됩니다.', restriction: '장르를 바꾸면 남은 두 카드 모두 계약 종료 · 같은 작가·배우를 그대로 다시 쓴 작품은 장르 커리어 명성 보너스를 받지 않습니다 · 종료 "전속 보유" 보너스는 1장만' },
+  D07: { ability: '방영 후 자산 2을 내면 작가와 배우를 모두 전속으로 남길 수 있습니다 (전속 2칸). 다음 작품이 같은 장르일 때만 유지됩니다.', restriction: '장르를 바꾸면 남은 두 카드 모두 계약 종료 · 같은 작가·배우를 그대로 다시 쓴 작품은 장르 커리어 명성 보너스를 받지 않습니다 · 종료 "전속 보유" 보너스는 1장만' },
   D09: { ability: '작가·배우를 계약할 때 진열 대신 다른 플레이어의 전속 카드를 데려올 수 있습니다. 일반 계약과 같은 비용(계약비 + 칸 비용)이며 추가금은 없습니다. 데려온 카드로 만든 작품은 화제성 +3. 부서 특전 · 캐스팅팀 강화 −2, Lv3이면 빼앗기 계약비 0.', restriction: '원래 소속 플레이어는 보상을 받지 않습니다. 횟수 제한 없음' },
   D11: { ability: '전속 배우를 다시 캐스팅할 때마다 뮤즈 마커 +1 (최대 2). 뮤즈 마커 1개당 그 배우 작품 작품성 +1, 마커가 있으면 화제성 +1.' },
-  D12: { ability: '제작본부 Lv1로 시작하고 부서 강화 비용이 항상 −2입니다. 작품 두 편을 동시에 준비할 수 있습니다 (작가·배우 준비 칸 2세트). 두 번째 세트에는 일꾼 없이 계약하고 칸 비용 −1, 계약비 −1. 두 번째 세트로 만든 작품은 작품성 +2 · 화제성 +1. 부서 특전 · 캐스팅팀 강화 추가 −2, Lv3이면 두 번째 세트 계약비 0.', restriction: '방영은 라운드당 1편' },
+  D12: { ability: '원스톱 제작 · 작가 또는 배우를 계약한 라운드에, 나머지 한 장(배우 또는 작가)을 일꾼 없이 계약합니다 (칸 비용은 냄 · 라운드 1회). 부서 특전 · 캐스팅팀 강화 −2.', restriction: '방영은 라운드당 1편' }, D12old: { ability: '제작본부 Lv1로 시작하고 부서 강화 비용이 항상 −2입니다. 작품 두 편을 동시에 준비할 수 있습니다 (작가·배우 준비 칸 2세트). 두 번째 세트에는 일꾼 없이 계약하고 칸 비용 −1, 계약비 −1. 두 번째 세트로 만든 작품은 작품성 +2 · 화제성 +1. 부서 특전 · 캐스팅팀 강화 추가 −2, Lv3이면 두 번째 세트 계약비 0.', restriction: '방영은 라운드당 1편' },
 }; T.D05 = { ability: '부정 이슈의 효과를 받을 때마다 그 효과 대신 인지도 +2 · 명성 +1을 받습니다. 찌라시가 돈 라운드에 방영하면 화제성 +3.' }; T.D10 = { ability: "방영할 때 주사위 2개를 굴립니다. 합 10 이상 명성 +4, 7~9 명성 +2, 6 이하 명성 −1. 결과와 상관없이 방영마다 명성 +1." };
   for (const id in T) if (DB[id]) Object.assign(DB[id], T[id]);
   for (const id in TREND_V12) if (DB[id]) Object.assign(DB[id], TREND_V12[id]);
@@ -151,7 +204,7 @@ function newGame(J, cfg) {
   loadDB(J);
   const G = { v: 1, gameId: 'G' + Date.now().toString(36), seed: cfg.seed, rng: hashSeed(cfg.seed), n: cfg.players.length,
     round: 0, phase: 'Setup', order: [], turn: 0, sched: 0, kc: 0, len: cfg.length || 'std', maxRounds: RULES.lengths[cfg.length || 'std'].rounds,
-    schedMax: Math.round(RULES.sched[cfg.players.length] * RULES.lengths[cfg.length || 'std'].mult), kcMax: Math.round(RULES.kc[cfg.players.length] * RULES.lengths[cfg.length || 'std'].mult), rmod: {}, issue: null, issues: [],
+    schedMax: Math.round(RULES.sched[cfg.players.length] * RULES.lengths[cfg.length || 'std'].mult * (RULES.pScale[cfg.players.length] || 1)), kcMax: Math.round(RULES.kc[cfg.players.length] * RULES.lengths[cfg.length || 'std'].mult * (RULES.pScale[cfg.players.length] || 1)), rmod: {}, issue: null, issues: [],
     trend: { now: null, next: null, deck: [], disc: [], choices: [], picker: null }, dists: [], objectives: [],
     decks: {}, market: { actor: [], writer: [], star: [], investor: [], crew: [] }, board: {}, players: [], log: [], airings: [],
     airedThisRound: false, pending: null, undo: null, dev: { dice: 0 }, over: false };
@@ -163,15 +216,16 @@ function newGame(J, cfg) {
   G.decks.investor = deckOf(J.investors, () => true);
   G.decks.crew = { draw: [], disc: [] }; G.market.crew = Object.keys(DEPTS);
   G.decks.sponsor = deckOf(SPONSORS, () => true); G.market.sponsor = [];
+  [1, 2, 3].forEach(t => (G.decks['inv' + t] = deckOf(J.investors, x => DB[x.id] && DB[x.id].tier === t))); G.market.investor = [];
   G.trend.deck = shuffle(G, J.trends.map(t => t.id));
   const cats = [...new Set(J.distributors.map(d => d.category))];
   G.dists = cats.map(c => shuffle(G, J.distributors.filter(d => d.category === c).map(d => d.id))[0]);
   G.objectives = shuffle(G, J.objectives.map(o => o.id)).slice(0, 3);
   cfg.players.forEach((p, i) => {
     const d = C(p.dir), sb = parseRes(d.start_bonus);
-    G.players.push({ id: i, name: p.name, color: p.color, dir: p.dir, money: RULES.startMoney + (sb.money || 0), fame: sb.fame || 0, aware: sb.aware || 0,
+    G.players.push({ id: i, name: p.name, color: p.color, dir: p.dir, money: RULES.startMoney - (p.dir === 'D01' ? 3 : 0) + (sb.money || 0), fame: sb.fame || 0, aware: sb.aware || 0,
       placed: 0, prep: { writer: null, actor: null }, prep2: { writer: null, actor: null }, excl: null, excl2: null, poach: 0, selfN: 0, crews: [], inv: null, rec: [], src: { work: 0, ind: 0, aware: 0, award: 0, obj: 0, end: 0 }, fameByRound: [], invFails: 0, invCount: 0, bot: !!p.bot, style: p.style || (p.bot ? ['spec', 'spread', 'money'][i % 3] : 'human'),
-    career: {}, sponsors: [], spTier: 0, dept: p.dir === 'D12' ? { prod: 1 } : {}, workMoney: 0, hallyuN: 0, growN: 0, cats: [], airedR: 0, air2R: 0 });
+    career: {}, sponsors: [], spTier: 0, dept: {}, workMoney: 0, hallyuN: 0, growN: 0, cats: [], airedR: 0, air2R: 0 });
   });
   G.order = G.players.map(p => p.id);
   G.ach = [...RULES.achFixed, ...shuffle(G, Object.keys(ACH).filter(k => !RULES.achFixed.includes(k) && k !== 'ALLCAT')).slice(0, RULES.achRandom)]; G.achWin = {}; G.ceremony = 0; G.cerFrom = 1;
@@ -250,16 +304,18 @@ function fmtRes(r) { return Object.entries(r).map(([k, v]) => ({ fame: '명성',
 function actorHas(a, c) { return c === '한류' ? a.hallyu : c === '스타' ? a.career === '스타' : a.type === c || a.career === c; }
 function applyRes(G, p, r, srcKey) { if (r.money) p.money = Math.max(0, p.money + r.money); if (r.aware) p.aware = Math.max(0, p.aware + r.aware); if (r.fame) { p.fame += r.fame; p.src[srcKey || 'work'] += r.fame; } }
 
-function income(G) { G.players.forEach(p => { p.money += (p.dir === 'D01' ? 0 : RULES.income) + (lvl(p, 'fin') >= 2 ? 1 : 0); }); log(G, 'sys', `수입 · 자산 +${RULES.income}${G.players.some(p => p.dir === 'D01') ? ' (워커홀릭 제외)' : ''}`); }
+function income(G) { G.players.forEach(p => { p.money += (p.dir === 'D01' ? RULES.income - 1 : RULES.income) + (lvl(p, 'fin') >= 2 ? 1 : 0); }); log(G, 'sys', `수입 · 자산 +${RULES.income}${G.players.some(p => p.dir === 'D01') ? ' (워커홀릭 −1)' : ''}`); }
 function drawTo(G, key) { const d = G.decks[key]; if (!d.draw.length) { d.draw = shuffle(G, d.disc); d.disc = []; } return d.draw.pop() || null; }
-function refill(G) { const size = { actor: 4, writer: 4, star: 3, investor: 3 + ((G.rmod && G.rmod.investExtra) || 0), crew: 5, sponsor: 3 };
+function refill(G) { const size = { actor: 4, writer: 4, star: 4, crew: 5, sponsor: 3 };
+  { const mi = G.market.investor; while (mi.length < 6) mi.push(null); for (let i = 0; i < 6; i++) if (!mi[i]) mi[i] = drawTo(G, 'inv' + (Math.floor(i / 2) + 1)); }
   for (const k in size) { const m = G.market[k]; while (m.length > size[k]) { const x = m.pop(); if (x) discard(G, x); } while (m.length < size[k]) m.push(null); for (let i = 0; i < size[k]; i++) if (!m[i]) m[i] = drawTo(G, k); } }
-function discard(G, id) { if (!id) return; const x = C(id); if (!x || x.deck === 'self' || x.deck === 'dept') return; const k = x.deck === 'star' ? 'star' : x.deck === 'growth' ? null : x.id[0] === 'A' ? 'actor' : x.id[0] === 'W' ? 'writer' : x.id[0] === 'I' ? 'investor' : x.id[0] === 'P' ? 'sponsor' : 'crew'; if (k) G.decks[k].disc.push(id); }
+function discard(G, id) { if (!id) return; const x = C(id); if (!x || x.deck === 'self' || x.deck === 'dept') return; const k = x.deck === 'star' ? 'star' : x.deck === 'growth' ? null : x.id[0] === 'A' ? 'actor' : x.id[0] === 'W' ? 'writer' : x.id[0] === 'I' ? 'inv' + (x.tier || 1) : x.id[0] === 'P' ? 'sponsor' : 'crew'; if (k) G.decks[k].disc.push(id); }
 
 /* ── legality ── */
 const ok = (x = {}) => ({ ok: true, ...x }), err = why => ({ ok: false, why });
 function workerCap(p) { return (p.dir === 'D01' ? 4 : RULES.workers) + (hasCrew(p, 'C22') ? 1 : 0); }
-function d12Free(G, p, zone) { return p.dir === 'D12' && (zone === 'writer' || zone === 'actor') && !!p.prep[zone] && !(zone === 'writer' && C(p.prep.writer).deck === 'self') && !((p.prep2 || {})[zone]); }
+function d12Free(G, p, zone) { return p.dir === 'D12' && (zone === 'writer' || zone === 'actor') && p.d12R === G.round && p.d12Used !== G.round && !p.prep[zone]; }
+function d12FreeOld(G, p, zone) { return false && (zone === 'writer' || zone === 'actor') && !!p.prep[zone] && !(zone === 'writer' && C(p.prep.writer).deck === 'self') && !((p.prep2 || {})[zone]); }
 function freeCrewOn(G, p, zone) { const id = RULES.freeCrew[zone]; return !!(id && hasCrew(p, id) && (p.freeUsedR || {})[id] !== G.round); }
 function workersLeft(G, p) { return workerCap(p) - p.placed; }
 function dirImpl(id) { return RULES.dirImpl.includes(id); }
@@ -268,13 +324,14 @@ function slotState(G, zone, i) {
   if (G.phase !== 'Action') return err('행동 단계가 아님');
   if (G.bonus) return err('시즌2 기획팀 작가 계약을 먼저 끝내세요');
   if (workersLeft(G, p) <= 0 && !d12Free(G, p, zone)) return err('남은 일꾼 없음');
-  if (zone === 'star') { if (+i !== p.id) return err('다른 플레이어의 개인 칸'); if (b.star[i] != null) return err('이미 사용'); if (p.aware < RULES.starUnlock) return err(`인지도 ${RULES.starUnlock} 필요`); if (!G.market.star.some(id => id && C(id).required_fame <= p.aware)) return err('계약 가능한 스타 없음'); return ok(); }
+  if (zone === 'star') { if (+i !== p.id) return err('다른 플레이어의 개인 칸'); if (b.star[i] != null && !(lvl(p, 'cast') >= 3 && p.star2R !== G.round)) return err('이미 사용'); if (p.aware < RULES.starUnlock) return err(`인지도 ${RULES.starUnlock} 필요`); if (!G.market.star.some(id => id && C(id).required_fame <= p.aware)) return err('계약 가능한 스타 없음'); return ok(); }
   if (zone === 'fund') return ok();
   if (zone === 'air') { const s = b.air[i[0]]; if (s[i[1]] != null) return err('이미 차지됨'); return canAir(G, p, i[0]); }
   const arr = b[zone]; const coord = arr[i] != null;
-  if (coord && !(hasCrew(p, 'C15') && p.coordUsed !== G.round)) return err(hasCrew(p, 'C15') ? '제작 코디네이터 이번 라운드 사용함' : '이미 차지됨');
-  const ex = coord ? 1 : 0;
-  if (zone === 'writer' || zone === 'actor') { const min = Math.min(...G.market[zone].filter(Boolean).map(id => C(id).cost), p.excl && C(p.excl)[zone === 'writer' ? 'quality' : 'acting'] != null ? 0 : 99) + RULES.slotCost[i]; if (p.money < min + ex) return err('자산 부족'); return ok({ coord }); }
+  const priv = privSlot(p, zone);
+  if (coord && !priv && !(hasCrew(p, 'C15') && p.coordUsed !== G.round)) return err(hasCrew(p, 'C15') ? '제작 코디네이터 이번 라운드 사용함' : '이미 차지됨');
+  const ex = coord && !priv ? 1 : 0;
+  if (zone === 'writer' || zone === 'actor') { const min = Math.min(...G.market[zone].filter(Boolean).map(id => C(id).cost), 99) + RULES.slotCost[i]; const exMin = [p.excl, p.excl2].filter(x => x && C(x)[zone === 'writer' ? 'quality' : 'acting'] != null).map(x => placeCost(G, p, zone, i, x, 'excl')); const min2 = Math.min(min, ...exMin); if (p.money < min2 + ex) return err('자산 부족'); return ok({ coord }); }
   if (zone === 'invest') { if (p.inv) return err('투자 계약 1건 보유 중'); if (p.money < ex) return err('자산 부족'); return ok({ coord }); }
   if (zone === 'crew') { const m = Math.min(...Object.keys(DEPTS).map(id => deptCost(G, p, id))); if (m >= 99) return err('모든 부서 Lv3'); if (p.money < ex + m) return err('자산 부족'); return ok({ coord }); }
   if (zone === 'promo') { if (p.money < 2 + ex && p.aware < 2) return err('자산·인지도 부족'); return ok({ coord }); }
@@ -311,7 +368,7 @@ function distCond(G, p, did) {
 function syncSelf(G, p) { if (p.dir !== 'D02') return; if (!p.prep.writer) p.prep.writer = 'WSELF' + p.id; const w = C(p.prep.writer); if (!w || w.deck !== 'self') return;
   const a = p.prep.actor ? C(p.prep.actor) : null, ag = a ? (a.genres || []).filter(g => g !== '모든 장르') : [];
   w.quality = Math.min(4, 2 + Math.floor((p.selfN || 0) / 2)); w.genres = ag.length ? [ag[0]] : ['로맨스']; }
-function normPrep(p) { if (p.dir !== 'D12' || !p.prep2) return; const f = s => s.writer && s.actor; if (!f(p.prep) && f(p.prep2)) { const t = p.prep; p.prep = p.prep2; p.prep2 = t; p.fromSecond = true; } }
+function normPrep(p) { return; if (p.dir !== 'D12' || !p.prep2) return; const f = s => s.writer && s.actor; if (!f(p.prep) && f(p.prep2)) { const t = p.prep; p.prep = p.prep2; p.prep2 = t; p.fromSecond = true; } }
 function srcOf(G, p, id) { if (id && (id === p.excl || id === p.excl2)) return 'excl'; if (p.dir === 'D09' && G.players.some(o => o !== p && (o.excl === id || o.excl2 === id))) return 'poach'; return 'market'; }
 function extraPicks(G, p, zone, i) { const out = [], isW = zone === 'writer';
   if (p.excl2 && (C(p.excl2).quality != null) === isW && placeCost(G, p, zone, i, p.excl2, 'excl') <= p.money) out.push(p.excl2);
@@ -324,7 +381,8 @@ function canAir(G, p, did) { syncSelf(G, p); normPrep(p);
 
 /* ── contract / place ── */
 function hasCrew(p, id) { if (p.crews.includes(id)) return true; for (const k in DEPTS) { const L = lvl(p, DEPTS[k].key); for (let i = 0; i < L; i++) if (DEPTS[k].grant[i].includes(id)) return true; } return false; }
-function coordExtra(G, zone, i) { return zone !== 'star' && zone !== 'fund' && zone !== 'air' && G.board[zone] && G.board[zone][i] != null ? 1 : 0; }
+function privSlot(p, zone) { return !!p && ((zone === 'writer' && lvl(p, 'plan') >= 3) || (zone === 'actor' && lvl(p, 'cast') >= 2)); }
+function coordExtra(G, zone, i) { if (privSlot(cur(G), zone)) return 0; return zone !== 'star' && zone !== 'fund' && zone !== 'air' && G.board[zone] && G.board[zone][i] != null ? 1 : 0; }
 function placeCost(G, p, zone, i, card, from) {
   const c = C(card), isW = c.quality != null, extra = coordExtra(G, zone, i), rm = G.rmod || {};
   if (from === 'poach') return (lvl(p, 'cast') >= 3 ? 0 : c.cost) + RULES.slotCost[i] + extra;   // v1.2 · 캐스팅 승부사: 일반 계약과 같은 비용 (추가금 없음)
@@ -332,10 +390,10 @@ function placeCost(G, p, zone, i, card, from) {
   if (!isW && rm.rookieFree && /무명|신인/.test(c.career || '')) base = 0;
   if (!isW && rm.starCost && c.deck === 'star') base += rm.starCost;
   if (zone === 'star') return Math.max(0, base - (p.starCutR === G.round ? 3 : 0));
-  const toSecond = p.dir === 'D12' && from !== 'excl' && p.prep[isW ? 'writer' : 'actor'] && !(isW && C(p.prep.writer).deck === 'self');
+  const toSecond = false && from !== 'excl' && p.prep[isW ? 'writer' : 'actor'] && !(isW && C(p.prep.writer).deck === 'self');
   if (toSecond) base = lvl(p, 'cast') >= 3 ? 0 : base - 1;
   const slot = freeCrewOn(G, p, zone) ? extra : Math.max(0, RULES.slotCost[i] + extra + (zone === 'writer' && rm.writerSlot ? rm.writerSlot : 0) - (toSecond ? 1 : 0) - (zone === 'writer' && lvl(p, 'plan') >= 1 ? 1 : 0));
-  if (from === 'excl') { if (p.exclFree === card) return extra; return Math.max(0, slot - (hasCrew(p, 'C11') ? 1 : 0) - (p.dir === 'D11' && !isW ? 1 : 0)); }
+  if (from === 'excl') { if (p.exclFree === card) return extra; return (c.deck === 'growth' ? 0 : Math.floor(c.cost / 3)) + Math.max(0, slot - (hasCrew(p, 'C11') ? 1 : 0)); }
   return Math.max(0, base) + slot;
 }
 const AWARE_TIERS = [3, 6, 10];
@@ -383,16 +441,17 @@ function place(G, zone, i, choice) {
     else { const mk = G.market[zone === 'star' ? 'star' : zone]; mk[mk.indexOf(card)] = null; }
     p.prep2 = p.prep2 || { writer: null, actor: null }; let out = null;
     const selfW = kind === 'writer' && p.prep.writer && C(p.prep.writer).deck === 'self';
-    if (p.dir === 'D12' && p.prep[kind] && !selfW) { out = p.prep2[kind]; if (out) discard(G, out); p.prep2[kind] = card; log(G, p.id, `멀티 프로젝트 · 두 번째 준비 칸에 ${x.name}`); }
+    if (false && p.prep[kind] && !selfW) { out = p.prep2[kind]; if (out) discard(G, out); p.prep2[kind] = card; log(G, p.id, `멀티 프로젝트 · 두 번째 준비 칸에 ${x.name}`); }
     else { out = selfW ? null : p.prep[kind]; if (out) discard(G, out); p.prep[kind] = card; }
-    if (zone === 'star') G.board.star[i] = p.id; else mark(G.board[zone], i);
+    if (zone === 'star') { if (G.board.star[i] != null) p.star2R = G.round; G.board.star[i] = p.id; } else mark(G.board[zone], i);
     if (from === 'excl') p.exclFree = null;
     if (from === 'excl' && kind === 'actor' && p.dir === 'D11') { const n = Math.min(2, (p.muse && p.muse.id === card ? p.muse.n : 0) + 1); p.muse = { id: card, n }; log(G, p.id, `페르소나 감독 · ${x.name} 뮤즈 마커 ${n}`); }
     const pdBonus = kind === 'writer' && hasCrew(p, 'C10') ? 1 : 0; p.money += pdBonus;
     log(G, p.id, `${zone === 'star' ? '대스타 계약' : zone === 'writer' ? '작가 계약' : '배우 캐스팅'} · ${x.name} (${x.title}) · 자산 −${cost}${pdBonus ? ' · 기획PD +1' : ''}${ex ? ' · 제작 코디네이터(칸 비용 +1)' : ''}${out ? ` · ${C(out).name} 밀려남` : ''}`);
   } else if (zone === 'invest') {
     const v = C(choice.card); G.market.investor[G.market.investor.indexOf(choice.card)] = null;
-    const fin = hasCrew(p, 'C12') ? 2 : 0; const cut = (G.rmod && G.rmod.investCut) || 0; p.money += v.payout - cut + fin - ex; p.inv = choice.card; p.invCount++; mark(G.board.invest, i);
+    const fin = hasCrew(p, 'C12') ? 2 : 0; const cut = (G.rmod && G.rmod.investCut) || 0; if (!invAllowed(G, p, choice.card)) return err(`대형 투자는 인지도 ${RULES.invTier3.aware} 이상 또는 재무팀 Lv${RULES.invTier3.finLv} 필요`);
+    p.money += v.payout - cut + fin - ex; p.inv = choice.card; p.invR = G.round; p.invCount++; mark(G.board.invest, i);
     log(G, p.id, `투자 유치 · ${v.name} · 자산 +${v.payout}${fin ? ' · 재무팀 +2' : ''}${ex ? ' · 코디네이터 −1' : ''} · 조건: ${v.next_drama_condition}`);
   } else if (zone === 'crew') {
     if (DEPTS[choice.card]) { const d = DEPTS[choice.card], cost = deptCost(G, p, choice.card); if (cost >= 99) return err('이미 Lv3'); if (p.money < cost + ex) return err('자산 부족');
@@ -422,7 +481,8 @@ function place(G, zone, i, choice) {
     G.pending = beginSettle(G, p, i[0], boost); G.phase = 'Settle';
     return ok({ settle: true });
   }
-  if (d12w) log(G, p.id, '멀티 프로젝트 · 두 번째 세트 계약은 일꾼 없이');
+  if (d12w) { p.d12Used = G.round; log(G, p.id, '원스톱 제작 · 나머지 한 장 계약은 일꾼·칸 비용 없이'); }
+  else if (p.dir === 'D12' && (zone === 'writer' || zone === 'actor')) p.d12R = G.round;
   else if (freeW) { p.freeUsedR = p.freeUsedR || {}; p.freeUsedR[RULES.freeCrew[zone]] = G.round; log(G, p.id, `${C(RULES.freeCrew[zone]).name} · 일꾼 없이${zone === 'promo' ? '' : ' · 칸 비용 없음'}`); }
   if (!freeW) p.placed++; return advance(G);
 }
@@ -437,7 +497,10 @@ function advance(G) {
 }
 
 /* ── settlement: 8 steps ── */
-function workGenre(w, a, p) { const ag = a.genres || []; if (ag.includes('모든 장르')) return { g: w.genres[0], match: true }; const m = w.genres.find(g => ag.includes(g)); if (m) return { g: m, match: true };
+const GENRES6 = ['로맨스', '범죄', '사극', '판타지', '코미디', '스릴러'];
+function workGenre(w, a, p) { const ag = a.genres || [], wg = w.genres || [];
+  if (wg.includes('모든 장르')) { if (ag.includes('모든 장르') || !ag.length) { const car = (p && p.career) || {}; const g = GENRES6.slice().sort((x, y) => (car[x] || 0) - (car[y] || 0))[0]; return { g, match: true, free: true }; } return { g: ag[0], match: true }; }
+  if (ag.includes('모든 장르')) return { g: w.genres[0], match: true }; const m = w.genres.find(g => ag.includes(g)); if (m) return { g: m, match: true };
   if (p && p.dir === 'D08') return { g: w.genres[0], match: true, alt: ag[0], cross: true }; return { g: w.genres[0], match: false }; }
 function hasCrewNamed(p, name) { return p.crews.some(id => C(id).name === name.trim()); }
 function statBonuses(G, p, w, a, g) {
@@ -449,7 +512,10 @@ function statBonuses(G, p, w, a, g) {
     if ((m = c.effect.match(/^(모든 작품|[가-힣·]+) (작품성|화제성) \+(\d)$/))) { if (m[1] === '모든 작품' || m[1].split('·').includes(g)) (m[2] === '작품성' ? q : b).push([c.name, +m[3]]); return; }
     if (!HANDLED.includes(id)) notes.push(`${c.name}(${c.kind}) 미구현`); });
   [[w, '작가'], [a, '배우']].forEach(([x]) => { const e = x.effect || ''; let m;
-    if ((m = e.match(/^(.+?) 보유 시 (작품성|화제성) \+(\d)/))) { if (m[1].split('또는').some(n => hasCrewNamed(p, n))) (m[2] === '작품성' ? q : b).push([`${x.name} · ${m[1]} 보유`, +m[3]]); }
+    const DK = { 기획실: 'plan', 캐스팅팀: 'cast', 홍보팀: 'promo', 제작본부: 'prod', 재무팀: 'fin' };
+    if ((m = e.match(/^(기획실|캐스팅팀|홍보팀|제작본부|재무팀) Lv(\d) 이상이면 (작품성|화제성) \+(\d)/))) { if (lvl(p, DK[m[1]]) >= +m[2]) (m[3] === '작품성' ? q : b).push([`${x.name} · ${m[1]} Lv${m[2]}`, +m[4]]); }
+    else if (/가장 높은 부서 레벨만큼 화제성/.test(e)) { const L = Math.max(0, ...Object.values(p.dept || {})); if (L) b.push([`${x.name} · 부서 Lv${L}`, L]); }
+    else if ((m = e.match(/^(.+?) 보유 시 (작품성|화제성) \+(\d)/))) { if (m[1].split('또는').some(n => hasCrewNamed(p, n))) (m[2] === '작품성' ? q : b).push([`${x.name} · ${m[1]} 보유`, +m[3]]); }
     else if ((m = e.match(/아이돌 주연이면 (작품성|화제성) \+(\d)/))) { if (a.type === '아이돌') (m[1] === '작품성' ? q : b).push([`${x.name} · 아이돌 주연`, +m[2]]); } });
   if (lvl(p, 'prod') >= 1) q.push(['제작본부 Lv1', 1]);
   if (lvl(p, 'cast') >= 3) b.push(['캐스팅팀 Lv3', 1]);
@@ -462,7 +528,7 @@ function previewQuality(G, p) { syncSelf(G, p); const w = C(p.prep.writer), a = 
 /* 예상 시청률 (주사위·트렌드 제외) → 등급 */
 function previewRating(G, p) { syncSelf(G, p); normPrep(p); const w = C(p.prep.writer), a = C(p.prep.actor); if (!w || !a) return null;
   const wg = workGenre(w, a, p), s = statBonuses(G, p, w, a, wg.g);
-  const q = previewQuality(G, p) + (wg.match && lvl(p, 'prod') >= 2 ? 1 : 0) + (p.dir === 'D12' && p.fromSecond ? 2 : 0);
+  const q = previewQuality(G, p) + (wg.match && lvl(p, 'prod') >= 2 ? 1 : 0) + 0;
   const bz = a.buzz + (s.noBuzz ? 0 : ((RULES.origin[w.origin] || {}).buzz || 0)) + s.b.reduce((t, x) => t + x[1], 0);
   const v = q + bz, gi = gradeOf(v); return { q, b: bz, r: v, gi, grade: GRADES[gi], g: wg.g, toNext: gi < 4 ? RULES.gradeCut[gi] - v : 0 }; }
 function evalExpr(expr, q, b) { if (/^\s*[+−-]?\d+\s*$/.test(expr)) return num(expr.replace('+', ''));
@@ -526,7 +592,7 @@ function settleRoll(G) {
     if (d.kind === 'd10') { const r1 = roll(G), r2 = roll(G), sum = r1 + r2; d.r = `${r1}+${r2}`; const f = sum >= 10 ? 4 : sum >= 7 ? 2 : -1; S.res.fame += f;
       t.push([`${d.src} 🎲${r1}+${r2}=${sum} → 명성 ${f > 0 ? '+' : ''}${f}`, 0]); return; }
     const r0 = roll(G), cut = +((dmod.match(/바이럴팀 주사위 결과 [−-](\d)/) || [])[1] || 0), r = Math.max(1, r0 - cut);
-    const up = +(((a.effect || '').match(/바이럴팀 판정 성공 기준 \+(\d)/) || [])[1] || 0); d.r = cut ? `${r0}−${cut}` : r0;
+    const up = +(((a.effect || '').match(/바이럴(?:팀)? 판정 성공 기준 \+(\d)/) || [])[1] || 0); d.r = cut ? `${r0}−${cut}` : r0;
     const lab = `${d.src} 🎲${r0}${cut ? `−${cut}=${r}` : ''}`;
     if (r === 6) { S.res.aware += 3; t.push([`${lab} · 6 → 인지도 +3`, 0]); }
     else if (r <= S.b + up) { S.res.aware += 2; t.push([`${lab} ≤ 화제성 ${S.b}${up ? '+' + up : ''} → 인지도 +2`, 0]); }
@@ -536,10 +602,13 @@ function settleRoll(G) {
 }
 function finishSteps(G, S) {
   const p = P(G, S.pid), w = C(S.w), a = C(S.a), d = C(S.did), base = BASE.find(x => x.category === d.category), mod = d.modifier;
-  const rating = S.q + S.b, gi = Math.min(4, gradeOf(rating) + (p.dir === 'D03' && S.boost && lvl(p, 'prod') >= 3 ? 1 : 0)), t = RULES.gradeTab[d.category], F = { fame: t.f[gi], money: t.m[gi], aware: t.a[gi] };
+  let rating = S.q + S.b, gi = Math.min(4, gradeOf(rating) + (p.dir === 'D03' && S.boost && lvl(p, 'prod') >= 3 ? 1 : 0)), t = RULES.gradeTab[d.category], F = { fame: t.f[gi], money: t.m[gi], aware: t.a[gi] };
+  { const disc = lvl(p, 'fin') >= 2 ? 1 : 0, selfW = w.deck === 'self' ? 2 : 0, cost = k => Math.max(0, RULES.prodCost[k] - disc) + selfW, g0 = gi; while (gi > 0 && cost(gi) > p.money) gi--;
+    if (gi !== g0) { F.fame = t.f[gi]; F.money = t.m[gi]; F.aware = t.a[gi]; S.notes.push(`제작비 부족 · ${GRADES[g0]} → ${GRADES[gi]}등급으로 방영`); } S.prodCost = cost(gi); S.gradeRaw = g0; }
   S.rating = rating; S.grade = gi;
   S.steps[3] = { t: [[`시청률 ${S.q} + ${S.b} = ${rating} → ${GRADES[gi]}등급`, 0], [`${d.name}(${d.category}) ${GRADES[gi]}등급 · 명성`, F.fame], ['자산', F.money], ['인지도', F.aware]], v: `${GRADES[gi]} · 명성 ${F.fame} · 자산 ${F.money} · 인지도 ${F.aware}` };
-  S.res.fame += F.fame; S.res.aware += F.aware; S.res.money += F.money;
+  S.res.fame += F.fame; S.res.aware += F.aware; S.res.money += F.money - (S.prodCost || 0);
+  if (S.prodCost) S.steps[3].t.push([`제작비 (${GRADES[gi]}등급)`, -S.prodCost]);
   // 5 fixed bonuses
   const bonus = []; const add = (label, r) => { if (!r || !Object.keys(r).length) return; for (const k in r) S.res[k] += r[k]; bonus.push([label, r]); };
   let m;
@@ -569,17 +638,14 @@ function finishSteps(G, S) {
   [w, a].forEach(x => { const e = x.effect || '';
     if ((m = e.match(/방영할 때마다 (.+)/))) add(`${x.name}`, parseRes(m[1]));
     else if ((m = e.match(/^방영 시 (인지도 \+\d)/))) add(`${x.name}`, parseRes(m[1]));
-    else if ((m = e.match(/^(.+?)로 방영 시 (.+)/))) { const t = m[1]; if (t === d.name || (t.includes('해외') && d.category === '해외')) add(`${x.name} · ${t}`, parseRes(m[2])); } });
+    else if ((m = e.match(/^(.+?)로 방영 시 (.+)/))) { const t = m[1]; const cats = t.replace(/ 배급사$/, '').split('·'); if (t === d.name || cats.includes(d.category) || (t.includes('해외') && d.category === '해외')) add(`${x.name} · ${t}`, parseRes(m[2])); } });
   S.steps[4] = { t: bonus.length ? bonus.map(([l, r]) => [l + ' · ' + Object.entries(r).map(([k, v]) => ({ fame: '명성', money: '자산', aware: '인지도' })[k] + (v > 0 ? ' +' : ' ') + v).join(', '), 0]) : [['없음', 0]], v: bonus.length + '건' };
   // 6 investment
-  if (p.inv) { const v = C(p.inv), c = v.next_drama_condition; let okv = null;
-    if (c === '주연이 아이돌') okv = a.type === '아이돌'; else if (/한류 태그 포함/.test(c)) okv = S.hallyu;
-    else if ((m = c.match(/작품성 (\d+) 이상/))) okv = S.q >= +m[1]; else if ((m = c.match(/화제성 (\d+) 이상/))) okv = S.b >= +m[1];
-    else if ((m = c.match(/^([가-힣]+) (장르|작품)/))) okv = S.g === m[1];
-    const unk = okv === null; if (unk) { okv = true; S.notes.push(`투자 조건 "${c}" 자동 판정 불가 → 달성 처리`); }
+  if (p.inv) { const v = C(p.inv), c = v.next_drama_condition, okv = invCondOk(G, p, S, w, a, d, c);
     S.inv = { id: v.id, ok: okv };
-    if (okv) { const r = parseRes(v.success_bonus); for (const k in r) S.res[k] += r[k]; S.steps[5] = { t: [[`${v.name} · ${c} → 달성${unk ? ' (수동 확인)' : ''}`, 0], [`보너스 ${v.success_bonus}`, 0]], v: '달성' }; }
-    else { const pen = hasCrew(p, 'C12') ? -1 : RULES.investFail; S.res.fame += pen; p.invFails++; S.steps[5] = { t: [[`${v.name} · ${c} → 실패`, 0], [`명성 ${pen}${hasCrew(p, 'C12') ? ' (재무팀)' : ''}`, 0]], v: '실패' }; }
+    if (okv) { const rr = parseRes(v.success_bonus); for (const k in rr) S.res[k] += rr[k]; S.steps[5] = { t: [[`${TIER_NAME[v.tier || 1]} · ${v.name} · ${c} → 달성`, 0], [`보너스 ${v.success_bonus}`, 0]], v: '달성' }; }
+    else { const pen = (+((v.failure_penalty || '').match(/[−-](\d+)/) || [0, 3])[1]) * -1 + (hasCrew(p, 'C12') ? 1 : 0), back = v.tier === 3 ? Math.ceil(v.payout / 2) : 0;
+      S.res.fame += pen; S.res.money -= back; p.invFails++; S.steps[5] = { t: [[`${TIER_NAME[v.tier || 1]} · ${v.name} · ${c} → 실패`, 0], [`명성 ${pen}${back ? ' · 자산 −' + back + ' 반환' : ''}`, 0]], v: '실패' }; }
   } else S.steps[5] = { t: [['투자 계약 없음', 0]], v: '—' };
   // 7 resources + tracks (computed now, applied on finish)
   S.ind.sched = 1; S.ind.kc = (S.hallyu ? RULES.kcPerHallyu : 0) + (S.hallyu && d.category === '해외' ? RULES.kcBonusOverseas : 0);
@@ -588,25 +654,27 @@ function finishSteps(G, S) {
 }
 function settleFinish(G, keep) {
   const S = G.pending; if (!S || !S.rolled) return err('정산 미완료'); const p = P(G, S.pid), d = C(S.did), a = C(S.a), w = C(S.w);
-  const workFame = S.res.fame, a0 = p.aware; p.fame += workFame; p.src.work += workFame; p.money += S.res.money; p.aware = Math.max(0, p.aware + S.res.aware); awareUp(G, p, a0);
+  const workFame = S.res.fame, a0 = p.aware; p.fame += workFame; p.src.work += workFame; p.money = Math.max(0, p.money + S.res.money); p.aware = Math.max(0, p.aware + S.res.aware); awareUp(G, p, a0);
   const gs = pushTrack(G, p, 'sched', S.ind.sched), gk = pushTrack(G, p, 'kc', S.ind.kc);
   if (S.inv) p.inv = null, discard(G, S.inv.id);
   // growth
   let aId = a.id; if (S.discover && a.grow_to) aId = a.grow_to.split(' ')[0]; else if (a.grow_to && !/^🎲/.test(a.effect) && !String(a.grow_to).startsWith('←')) aId = a.grow_to.split(' ')[0];
   const grown = aId !== a.id;
-  const isSelf = w.deck === 'self'; if (isSelf) p.selfN = (p.selfN || 0) + 1; if (isSelf && keep === 'writer') keep = null; if (keep === 'both' && (p.dir !== 'D07' || isSelf || p.money < 3)) keep = 'actor';
+  if (grown) { applyRes(G, p, { fame: RULES.growBonus.fame, money: RULES.growBonus.money }, 'work'); log(G, p.id, `배우 성장 · ${a.name} → ${C(aId).name} · 명성 +${RULES.growBonus.fame} · 자산 +${RULES.growBonus.money}`); }
+  const isSelf = w.deck === 'self'; if (isSelf) p.selfN = (p.selfN || 0) + 1; if (isSelf && keep === 'writer') keep = null; if (keep === 'both' && (p.dir !== 'D07' || isSelf || p.money < 2)) keep = 'actor';
   let kept = null;
-  if (keep === 'both') { [p.excl, p.excl2].forEach(x => x && discard(G, x)); p.excl = w.id; p.excl2 = aId; p.season = { g: S.g, w: w.id, a: aId }; kept = w.id; p.money -= 3; log(G, p.id, `시즌제 · ${w.name}·${C(aId).name} 둘 다 전속 · 자산 −3 (${S.g} 유지 시)`); }
+  if (keep === 'both') { [p.excl, p.excl2].forEach(x => x && discard(G, x)); p.excl = w.id; p.excl2 = aId; p.season = { g: S.g, w: w.id, a: aId }; kept = w.id; p.money -= 2; log(G, p.id, `시즌제 · ${w.name}·${C(aId).name} 둘 다 전속 · 자산 −2 (${S.g} 유지 시)`); }
   else { if (keep === 'writer') { kept = w.id; discard(G, aId !== a.id ? null : a.id); } else if (keep === 'actor') { kept = aId; discard(G, w.id); } else { discard(G, w.id); if (!grown) discard(G, a.id); }
   if (p.excl && kept) discard(G, p.excl);
   if (kept) p.excl = kept; }
   if (p.muse && !(keep === 'actor' && (p.muse.id === a.id))) p.muse = null; else if (p.muse && grown) p.muse.id = aId;
   p.exclFree = kept && ((keep === 'writer' && /재계약비 0/.test(d.modifier)) || (keep === 'actor' && /재계약비 0/.test(a.effect || ''))) ? kept : null;
-  if (p.dir === 'D12' && p.prep2 && p.prep2.writer && p.prep2.actor) p.fromSecond = true;
-  p.prep = p.dir === 'D12' && p.prep2 ? p.prep2 : { writer: null, actor: null }; p.prep2 = { writer: null, actor: null };
+  p.prep = { writer: null, actor: null }; p.prep2 = { writer: null, actor: null };
   p.rec.push(S.g); G.airedThisRound = true;
   if (p.airedR === G.round) p.air2R = G.round; p.airedR = G.round;
-  p.career = p.career || {}; if (!S.noCareer) p.career[S.g] = (p.career[S.g] || 0) + 1;
+  p.career = p.career || {}; const newG = !p.career[S.g]; if (!S.noCareer) p.career[S.g] = (p.career[S.g] || 0) + 1;
+  if (newG && p.career[S.g]) { const n = Object.keys(p.career).filter(k => p.career[k] > 0).length, V = RULES.variety, f = V.every + (n === 3 ? V.at3 : 0) + (n === 6 ? V.at6 : 0);
+    applyRes(G, p, { fame: f }, 'work'); log(G, p.id, `다장르 · ${S.g} 첫 방영 (${n}/6장르) → 명성 +${f}`); }
   p.workMoney = (p.workMoney || 0) + S.res.money; if (S.hallyu) p.hallyuN = (p.hallyuN || 0) + 1; if (grown) p.growN = (p.growN || 0) + 1;
   p.cats = p.cats || []; if (!p.cats.includes(d.category)) p.cats.push(d.category);
   checkAch(G, p, S, w, a); { const k2 = w.id + '|' + aId; p.pairN = p.lastPair === w.id + '|' + a.id ? (p.pairN || 1) + 1 : 1; p.lastPair = k2; }
@@ -644,7 +712,7 @@ function rankN(G, name, vals, pts, key) { const vs = [...new Set(vals.map(x => x
 const OBJ_MET = { O01: p => Object.keys(p.career || {}).length, O02: p => Math.max(0, ...Object.values(p.career || {})), O03: p => p.aware,
   O04: (p, G) => G.airings.filter(x => x.player === p.name && x.quality >= 12).length, O05: p => p.growN || 0, O06: p => (p.cats || []).length, O07: p => p.hallyuN || 0, O08: p => p.rec.length };
 function scoreObjectives(G, half) { (G.objectives || []).forEach(o => { const fn = OBJ_MET[o]; if (!fn) return;
-  rankN(G, `공개 목표 · ${C(o).name}${half ? ' (중간)' : ''}`, G.players.map(p => ({ p, v: fn(p, G) })), half ? RULES.objPts.mid : RULES.objPts.end, 'obj'); }); }
+  rankN(G, `공개 목표 · ${C(o).name}${half ? ' (중간)' : ''}`, G.players.map(p => ({ p, v: fn(p, G) })), half ? (RULES.objPtsByLen[G.len] || RULES.objPts).mid : (RULES.objPtsByLen[G.len] || RULES.objPts).end, 'obj'); }); }
 function ceremony(G, label, final) {
   const as = G.airings.filter(x => x.round >= G.cerFrom);
   log(G, 'sys', `${label} 시상식`);
@@ -691,4 +759,4 @@ function exportCSV(G) {
   };
 }
 
-if (typeof module !== 'undefined') module.exports = { SPONSORS, spEnd, spTiers, OBJ_MET, previewRating, DEPTS, lvl, deptCost, careerAt, GRADES, gradeOf, ACH, srcOf, extraPicks, syncSelf, dirImpl, workerCap, distInfo, freeActions, useFree, bonusChoices, bonusWriter, diceClauses, RULES, newGame, loadDB, pickTrend, place, slotState, placeCost, settleRoll, settleFinish, undo, exportCSV, cur, P, C, BASE: () => BASE, distCond, previewQuality, evalExpr };
+if (typeof module !== 'undefined') module.exports = { invAllowed, invCondOk, TIER_NAME, SPONSORS, spEnd, spTiers, OBJ_MET, previewRating, DEPTS, lvl, deptCost, careerAt, GRADES, gradeOf, ACH, srcOf, extraPicks, syncSelf, dirImpl, workerCap, distInfo, freeActions, useFree, bonusChoices, bonusWriter, diceClauses, RULES, newGame, loadDB, pickTrend, place, slotState, placeCost, settleRoll, settleFinish, undo, exportCSV, cur, P, C, BASE: () => BASE, distCond, previewQuality, evalExpr };
