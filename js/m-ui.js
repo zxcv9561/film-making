@@ -139,7 +139,7 @@ function pAction() {
   h += zn('배우 캐스팅', '계약비 + 칸 비용', b.actor.map((o, i) => mslot('actor', i, o, cl(RULES.slotCost[i]))).join(''));
   h += zn('대스타', `개인 칸 · 인지도 ${RULES.starUnlock}`, G.players.map(x => mslot('star', x.id, b.star[x.id], x.id === p.id ? '내 칸' : esc(x.name))).join(''));
   h += zn('투자 유치', '1건까지', b.invest.map((o, i) => mslot('invest', i, o)).join(''), '', 'res');
-  h += zn('제작진 고용', '최대 3명', b.crew.map((o, i) => mslot('crew', i, o)).join(''), '', 'res');
+  h += zn('부서 강화', `${b.crew.length}칸`, b.crew.map((o, i) => mslot('crew', i, o)).join(''), '', 'res');
   h += zn('홍보', '2칸', b.promo.map((o, i) => mslot('promo', i, o)).join(''), `<div class="opts"><span>${I.money}2 → ${I.aware}+1</span><span>${I.money}4 → ${I.aware}+3</span></div>`, 'act');
   h += zn('자금 확보', '무제한', b.fund.map(o => `<span class="ms occ" style="background:${pcol(o)}"></span>`).join('') + mslot('fund', 0, null), `<div class="opts"><span>${I.money}+2</span><span>${I.money}5 → ${I.fame}+1</span><span>${I.money}6 → 지표 +1</span></div>`, 'act');
   h += `<div class="hint wide" style="margin-top:6px"><span><b style="color:var(--ink);font-size:15px">방영</b> · 준비 칸에 작가 + 배우</span><span>${p.prep.writer && p.prep.actor ? '준비 완료 ' + gradeChip(p) : '준비 ' + [p.prep.writer, p.prep.actor].filter(Boolean).length + '/2'}</span></div>`;
@@ -164,7 +164,7 @@ function pMarket() {
   const tr = (t, l) => t ? `<div class="mtr"><span class="lab">${l}</span><b>${esc(t.trend)}</b><p>${esc(t.trend_effect)}</p><p style="color:var(--muted)">이슈 · ${esc(t.issue)}${t.issue_negative ? ' ⚠' : ''}</p></div>` : '';
   const g = (t, k, n) => `<div class="mgrp"><h4>${t}<span class="lab">${n}</span></h4>${G.market[k].map(id => mrow(id)).join('')}</div>`;
   return tr(tn, '이번 라운드 트렌드') + tr(tx, '다음 라운드') + g('배우', 'actor', `덱 ${G.decks.actor.draw.length}`) + g('작가', 'writer', `덱 ${G.decks.writer.draw.length}`) +
-    g('스타', 'star', p.aware >= RULES.starUnlock ? '해금' : `🔒 인지도 ${RULES.starUnlock}`) + g('투자사', 'investor', `덱 ${G.decks.investor.draw.length}`) + g('제작 부서', 'crew', `Lv3까지`);
+    g('스타', 'star', p.aware >= RULES.starUnlock ? '해금' : `🔒 인지도 ${RULES.starUnlock}`) + g('투자사', 'investor', `덱 ${G.decks.investor.draw.length}`);
 }
 function pOpp() {
   const p = cur(G);

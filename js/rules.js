@@ -331,6 +331,7 @@ function slotState(G, zone, i) {
   const priv = privSlot(p, zone);
   if (coord && !priv && !(hasCrew(p, 'C15') && p.coordUsed !== G.round)) return err(hasCrew(p, 'C15') ? '제작 코디네이터 이번 라운드 사용함' : '이미 차지됨');
   const ex = coord && !priv ? 1 : 0;
+  if ((zone === 'writer' || zone === 'actor') && !coord && arr.slice(0, i).some(x => x == null)) return err('앞 칸(비용 낮은 칸)부터 사용');
   if (zone === 'writer' || zone === 'actor') { const min = Math.min(...G.market[zone].filter(Boolean).map(id => C(id).cost), 99) + RULES.slotCost[i]; const exMin = [p.excl, p.excl2].filter(x => x && C(x)[zone === 'writer' ? 'quality' : 'acting'] != null).map(x => placeCost(G, p, zone, i, x, 'excl')); const min2 = Math.min(min, ...exMin); if (p.money < min2 + ex) return err('자산 부족'); return ok({ coord }); }
   if (zone === 'invest') { if (p.inv) return err('투자 계약 1건 보유 중'); if (p.money < ex) return err('자산 부족'); return ok({ coord }); }
   if (zone === 'crew') { const m = Math.min(...Object.keys(DEPTS).map(id => deptCost(G, p, id))); if (m >= 99) return err('모든 부서 Lv3'); if (p.money < ex + m) return err('자산 부족'); return ok({ coord }); }
